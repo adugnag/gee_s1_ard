@@ -4,9 +4,7 @@
 Created on Sat Mar  6 10:55:17 2021
 
 @author: adugnamullissa
-"""
 
-"""
     Applies preprocessing to a collection of S1 images to return an analysis ready sentinel-1 data. 
 
     params:
