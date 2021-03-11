@@ -6,11 +6,11 @@ Created on Sat Mar  6 10:55:17 2021
 @author: adugnamullissa
 """
 
-'''
+"""
     Applies preprocessing to a collection of S1 images to return an analysis ready sentinel-1 data. 
 
-    Args:
-        ROI: The region to include imagery within. (ee.Geometry); The user has to interactively draw a bounding box within the map window.
+    params:
+        ROI: The region to include imagery within. (ee.Geometry) The user has to interactively draw a bounding box within the map window.
         ORBITS:  The orbits to include. (string: ASCENDING or DESCENDING)
         START_DATE: The earliest date to include images for (inclusive).
         END_DATE: The latest date to include images for (exclusive).
@@ -42,40 +42,37 @@ Created on Sat Mar  6 10:55:17 2021
     Returns:
         (s1_processed) where
             s1_processed (ee.ImageCollection): preprocessed image collection
-'''
 
-import helper
+    """
+
+import wrapper as wp
 import ee
-ee.Authenticate()
+
 ee.Initialize()
 
 #/***************************/ 
 #// MAIN
 #/***************************/ 
 #Parameters
-roi = ee.Geometry.Polygon(
-        [[[105.09332131790751, 11.489785285118867],
-          [105.09332131790751, 11.18278399685024],
-          [105.40917825150126, 11.18278399685024],
-          [105.40917825150126, 11.489785285118867]]])
-    
 params = {  'START_DATE': '2018-01-01', 
-            'STOP_DATE': '2019-01-01',        
+            'STOP_DATE': '2018-01-15',        
             'ORBIT': 'DESCENDING',
             'POLARIZATION': 'VVVH',
-            'ROI': roi,
+            'ROI': ee.Geometry.Rectangle([-47.1634, -3.00071, -45.92746, -5.43836]),
             'DEM': ee.Image('USGS/SRTMGL1_003'),
             'APPLY_BORDER_NOISE_CORRECTION': False,
             'APPLY_TERRAIN_FLATTENING': True,
             'TERRAIN_FLATTENING_MODEL': 'VOLUME',
             'TERRAIN_FLATTENING_ADDITIONAL_LAYOVER_SHADOW_BUFFER':0,
             'APPLY_SPECKLE_FILTERING': True,
-            'SPECKLE_FILTER': 'MULTI BOXCAR',
+            'SPECKLE_FILTER_FRAMEWORK':'MULTI',
+            'SPECKLE_FILTER': 'BOXCAR',
             'SPECKLE_FILTER_KERNEL_SIZE': 7,
+            'NR_OF_IMAGES':10,
             'FORMAT': 'DB',
             'CLIP_TO_ROI': False,
             'SAVE_ASSET': False, 
-            'ASSET_ID': "users/nrtwur/"
+            'ASSET_ID': "users/adugnagirma"
             }
 #processed s1 collection
-s1_processed = helper.s1_preproc(params)
+s1_processed = wp.s1_preproc(params)
