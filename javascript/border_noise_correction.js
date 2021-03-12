@@ -1,11 +1,14 @@
-
-
+/*
+Version: v1.0
+Date: 2021-03-12
+Authors: Mullissa A., Vollrath A.,  Reiche J., Slagter B., Balling J. , Gou Y., Braun, C.
+Description: Function to mask out edges of images using using angle.
+    Adopted from: Hird et al. 2017 Remote Sensing (supplementary material): http://www.mdpi.com/2072-4292/9/12/1315)
+*/
 //---------------------------------------------------------------------------//
 // Additional Border Noise Removal
 //---------------------------------------------------------------------------//
-/** Function to mask out edges of images using using angle.
- * Source: Hird et al. 2017 Remote Sensing (supplementary material): http://www.mdpi.com/2072-4292/9/12/1315)
- * (mask out angles >= 45.23993) */
+ /* (mask out angles >= 45.23993) */
  var maskAngLT452 = function(image) {
     var ang = image.select(['angle']);
     return image.updateMask(ang.lt(45.23993)).set('system:time_start', image.get('system:time_start'));
