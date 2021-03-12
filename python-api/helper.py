@@ -20,8 +20,7 @@ def lin_to_db(image):
 
 def lin_to_db2(image):
     """ Convert backscatter from linear to dB by removing the ratio band. """
-    if (image.bandNames().contains('VH')):
-        db = ee.Image(10).multiply(image.select(['VV', 'VH']).log10()).rename(['VV', 'VH'])
+    db = ee.Image(10).multiply(image.select(['VV', 'VH']).log10()).rename(['VV', 'VH'])
     return image.addBands(db)
 
 #---------------------------------------------------------------------------//
