@@ -1,8 +1,8 @@
-// File: S1_ARD_TEST/helper.js
-// Version: v1.2
-// Date: 2021-02-11
-// Authors: Mullissa A., Vollrath A.,  Reiche J., Slagter B., Balling J. , Gou Y., Braun, C.
-
+/*
+Version: v1.0
+Date: 2021-03-12
+Authors: Mullissa A., Vollrath A.,  Reiche J., Slagter B., Balling J. , Gou Y., Braun, C.
+*/
 //****************************
 // ALL PREPROCESSING
 //****************************
