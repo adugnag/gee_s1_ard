@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-Created on Thu Mar 11 18:36:59 2021
-
-@author: adugnamullissa
+Version: v1.0
+Date: 2021-03-12
+Authors: Mullissa A., Vollrath A.,  Reiche J., Slagter B., Balling J. , Gou Y., Braun, C.
 """
 import ee
 import math
@@ -13,15 +13,13 @@ import math
 #---------------------------------------------------------------------------//
 
 def boxcar(image, KERNEL_SIZE):
-  """Applies boxcar filter on every image in the collection."""
-  bandNames = image.bandNames()
-    #Define a boxcar kernel
-  kernel = ee.Kernel.square((KERNEL_SIZE/2), units='pixels', normalize=True)
-    #Apply boxcar
-  output = image.convolve(kernel)
-  output = output.rename(bandNames).copyProperties(image)
-  output = ee.Image(output).addBands(image.select('angle'), None, True)
-  return output.set('system:time_start', image.get('system:time_start'))
+    """Applies boxcar filter on every image in the collection."""
+    bandNames = image.bandNames().remove('angle')
+      #Define a boxcar kernel
+    kernel = ee.Kernel.square((KERNEL_SIZE/2), units='pixels', normalize=True)
+     #Apply boxcar
+    output = image.select(bandNames).convolve(kernel).rename(bandNames)
+    return image.addBands(output, None, True)
 
 
 def leefilter(image,KERNEL_SIZE):
@@ -29,7 +27,7 @@ def leefilter(image,KERNEL_SIZE):
     J. S. Lee, “Digital image enhancement and noise filtering by use of local statistics,” 
     IEEE Pattern Anal. Machine Intell., vol. PAMI-2, pp. 165–168, Mar. 1980."""
         
-    bandNames = image.bandNames()
+    bandNames = image.bandNames().remove('angle')
   
     #S1-GRD images are multilooked 5 times in range
     enl = 5
@@ -40,18 +38,29 @@ def leefilter(image,KERNEL_SIZE):
     #MMSE estimator
     #Neighbourhood mean and variance
     oneImg = ee.Image.constant(1)
-    z_bar = image.reduceNeighborhood(reducer= ee.Reducer.mean(),kernel= ee.Kernel.square((KERNEL_SIZE/2), 'pixels'))
-    varz = image.reduceNeighborhood(reducer= ee.Reducer.variance(),kernel= ee.Kernel.square((KERNEL_SIZE/2), 'pixels'))
+    #Estimate stats
+    reducers = ee.Reducer.mean().combine( \
+                      reducer2= ee.Reducer.variance(), \
+                      sharedInputs= True
+                      )
+    stats = image.select(bandNames).reduceNeighborhood( \
+                      reducer= reducers, \
+                          kernel= ee.Kernel.square(KERNEL_SIZE/2,'pixels'), \
+                              optimization= 'window')
+    meanBand = bandNames.map(lambda bandName: ee.String(bandName).cat('_mean'))
+    varBand = bandNames.map(lambda bandName:  ee.String(bandName).cat('_variance'))
+        
+    z_bar = stats.select(meanBand)
+    varz = stats.select(varBand)
     #Estimate weight 
     varx = (varz.subtract(z_bar.pow(2).multiply(eta.pow(2)))).divide(oneImg.add(eta.pow(2)))
     b = varx.divide(varz)
   
     #if b is negative set it to zero
     new_b = b.Where(b.lt(0), 0)
-    output = oneImg.subtract(new_b).multiply(z_bar.abs()).add(new_b.multiply(image))
-    output = output.rename(bandNames).copyProperties(image)
-    output = ee.Image(output).addBands(image.select('angle'), None, True)
-    return output.set('system:time_start', image.get('system:time_start'))
+    output = oneImg.subtract(new_b).multiply(z_bar.abs()).add(new_b.multiply(image.select(bandNames)))
+    output = output.rename(bandNames)
+    return image.addBands(output, None, True)
 
 
 def gammamap(image,KERNEL_SIZE): 
@@ -59,11 +68,22 @@ def gammamap(image,KERNEL_SIZE):
     Lopes A., Nezry, E., Touzi, R., and Laur, H., 1990.  Maximum A Posteriori Speckle Filtering and First Order texture Models in SAR Images.  
     International  Geoscience  and  Remote  Sensing  Symposium (IGARSS). """
     enl = 5
-    bandNames = image.bandNames()
+    bandNames = image.bandNames().remove('angle')
     #local mean
-    z = image.reduceNeighborhood(reducer= ee.Reducer.mean(),kernel= ee.Kernel.square((KERNEL_SIZE/2), 'pixels'))
-    #local standard deviation
-    sigz = image.reduceNeighborhood(reducer= ee.Reducer.stdDev(),kernel= ee.Kernel.square((KERNEL_SIZE/2), 'pixels'))
+    reducers = ee.Reducer.mean().combine( \
+                      reducer2= ee.Reducer.stdDev(), \
+                      sharedInputs= True
+                      )
+    stats = image.select(bandNames).reduceNeighborhood( \
+                      reducer= reducers, \
+                          kernel= ee.Kernel.square(KERNEL_SIZE/2,'pixels'), \
+                              optimization= 'window')
+    meanBand = bandNames.map(lambda bandName: ee.String(bandName).cat('_mean'))
+    stdDevBand = bandNames.map(lambda bandName:  ee.String(bandName).cat('_stdDev'))
+        
+    z = stats.select(meanBand)
+    sigz = stats.select(stdDevBand)
+    
     #local observed coefficient of variation
     ci = sigz.divide(z)
     #noise coefficient of variation (or noise sigma)
@@ -79,7 +99,7 @@ def gammamap(image,KERNEL_SIZE):
     alpha = oneImg.add(cu.pow(2)).divide(ci.pow(2).subtract(cu.pow(2)))
 
     #Implements the Gamma MAP filter described in equation 11 in Lopez et al. 1990
-    q = image.expression("z**2 * (z * alpha - enl - 1)**2 + 4 * alpha * enl * b() * z", z= z, alpha= alpha,enl= enl)
+    q = image.select(bandNames).expression("z**2 * (z * alpha - enl - 1)**2 + 4 * alpha * enl * b() * z", z= z, alpha= alpha,enl= enl)
     rHat = z.multiply(alpha.subtract(enlImg).subtract(oneImg)).add(q.sqrt()).divide(twoImg.multiply(alpha))
   
     #if ci <= cu then its a homogenous region ->> boxcar filter
@@ -87,109 +107,107 @@ def gammamap(image,KERNEL_SIZE):
     #if cmax > ci > cu then its a textured medium ->> apply Gamma MAP filter
     rHat = (rHat.updateMask(ci.gt(cu)).updateMask(ci.lt(cmax))).rename(bandNames)
     #ci>cmax then its strong signal ->> retain
-    x = image.updateMask(ci.gte(cmax)).rename(bandNames)  
+    x = image.select(bandNames).updateMask(ci.gte(cmax)).rename(bandNames)  
     #Merge
-    output = ee.ImageCollection([zHat,rHat,x]).sum().rename(bandNames).copyProperties(image)
-    output = ee.Image(output).addBands(image.select('angle'), None, True)
-    return output.set('system:time_start', image.get('system:time_start')) 
+    output = ee.ImageCollection([zHat,rHat,x]).sum()
+    return image.addBands(output, None, True)
 
-def RefinedLee(img):
-  """ This filter is modified from the implementation by Guido Lemoine 
-  Source: Lemoine et al. https://code.earthengine.google.com/5d1ed0a0f0417f098fdfd2fa137c3d0c
-  """
-  bandNames = img.bandNames()
-  # Set up 3x3 kernels 
-  weights3 = ee.List.repeat(ee.List.repeat(1,3),3)
-  kernel3 = ee.Kernel.fixed(3,3, weights3, 1, 1, False)
+def RefinedLee(image):
+    """ This filter is modified from the implementation by Guido Lemoine 
+    Source: Lemoine et al. https://code.earthengine.google.com/5d1ed0a0f0417f098fdfd2fa137c3d0c
+    """
+    bandNames = image.bandNames().remove('angle')
+    img = image.select(bandNames)
+    # Set up 3x3 kernels 
+    weights3 = ee.List.repeat(ee.List.repeat(1,3),3)
+    kernel3 = ee.Kernel.fixed(3,3, weights3, 1, 1, False)
 
-  mean3 = img.reduceNeighborhood(ee.Reducer.mean(), kernel3)
-  variance3 = img.reduceNeighborhood(ee.Reducer.variance(), kernel3)
+    mean3 = img.reduceNeighborhood(ee.Reducer.mean(), kernel3)
+    variance3 = img.reduceNeighborhood(ee.Reducer.variance(), kernel3)
 
-  # Use a sample of the 3x3 windows inside a 7x7 windows to determine gradients and directions
-  sample_weights = ee.List([[0,0,0,0,0,0,0], [0,1,0,1,0,1,0],[0,0,0,0,0,0,0], [0,1,0,1,0,1,0], [0,0,0,0,0,0,0], [0,1,0,1,0,1,0],[0,0,0,0,0,0,0]])
+    # Use a sample of the 3x3 windows inside a 7x7 windows to determine gradients and directions
+    sample_weights = ee.List([[0,0,0,0,0,0,0], [0,1,0,1,0,1,0],[0,0,0,0,0,0,0], [0,1,0,1,0,1,0], [0,0,0,0,0,0,0], [0,1,0,1,0,1,0],[0,0,0,0,0,0,0]])
 
-  sample_kernel = ee.Kernel.fixed(7,7, sample_weights, 3,3, False)
+    sample_kernel = ee.Kernel.fixed(7,7, sample_weights, 3,3, False)
 
-  # Calculate mean and variance for the sampled windows and store as 9 bands
-  sample_mean = mean3.neighborhoodToBands(sample_kernel) 
-  sample_var = variance3.neighborhoodToBands(sample_kernel)
+    # Calculate mean and variance for the sampled windows and store as 9 bands
+    sample_mean = mean3.neighborhoodToBands(sample_kernel) 
+    sample_var = variance3.neighborhoodToBands(sample_kernel)
 
-  # Determine the 4 gradients for the sampled windows
-  gradients = sample_mean.select(1).subtract(sample_mean.select(7)).abs()
-  gradients = gradients.addBands(sample_mean.select(6).subtract(sample_mean.select(2)).abs())
-  gradients = gradients.addBands(sample_mean.select(3).subtract(sample_mean.select(5)).abs())
-  gradients = gradients.addBands(sample_mean.select(0).subtract(sample_mean.select(8)).abs())
+    # Determine the 4 gradients for the sampled windows
+    gradients = sample_mean.select(1).subtract(sample_mean.select(7)).abs()
+    gradients = gradients.addBands(sample_mean.select(6).subtract(sample_mean.select(2)).abs())
+    gradients = gradients.addBands(sample_mean.select(3).subtract(sample_mean.select(5)).abs())
+    gradients = gradients.addBands(sample_mean.select(0).subtract(sample_mean.select(8)).abs())
 
-  # And find the maximum gradient amongst gradient bands
-  max_gradient = gradients.reduce(ee.Reducer.max())
+    # And find the maximum gradient amongst gradient bands
+    max_gradient = gradients.reduce(ee.Reducer.max())
 
-  # Create a mask for band pixels that are the maximum gradient
-  gradmask = gradients.eq(max_gradient)
+    # Create a mask for band pixels that are the maximum gradient
+    gradmask = gradients.eq(max_gradient)
 
-  # duplicate gradmask bands: each gradient represents 2 directions
-  gradmask = gradmask.addBands(gradmask)
+    # duplicate gradmask bands: each gradient represents 2 directions
+    gradmask = gradmask.addBands(gradmask)
 
-  # Determine the 8 directions
-  directions = sample_mean.select(1).subtract(sample_mean.select(4)).gt(sample_mean.select(4).subtract(sample_mean.select(7))).multiply(1)
-  directions = directions.addBands(sample_mean.select(6).subtract(sample_mean.select(4)).gt(sample_mean.select(4).subtract(sample_mean.select(2))).multiply(2))
-  directions = directions.addBands(sample_mean.select(3).subtract(sample_mean.select(4)).gt(sample_mean.select(4).subtract(sample_mean.select(5))).multiply(3))
-  directions = directions.addBands(sample_mean.select(0).subtract(sample_mean.select(4)).gt(sample_mean.select(4).subtract(sample_mean.select(8))).multiply(4))
-  # The next 4 are the not() of the previous 4
-  directions = directions.addBands(directions.select(0).Not().multiply(5))
-  directions = directions.addBands(directions.select(1).Not().multiply(6))
-  directions = directions.addBands(directions.select(2).Not().multiply(7))
-  directions = directions.addBands(directions.select(3).Not().multiply(8))
+    # Determine the 8 directions
+    directions = sample_mean.select(1).subtract(sample_mean.select(4)).gt(sample_mean.select(4).subtract(sample_mean.select(7))).multiply(1)
+    directions = directions.addBands(sample_mean.select(6).subtract(sample_mean.select(4)).gt(sample_mean.select(4).subtract(sample_mean.select(2))).multiply(2))
+    directions = directions.addBands(sample_mean.select(3).subtract(sample_mean.select(4)).gt(sample_mean.select(4).subtract(sample_mean.select(5))).multiply(3))
+    directions = directions.addBands(sample_mean.select(0).subtract(sample_mean.select(4)).gt(sample_mean.select(4).subtract(sample_mean.select(8))).multiply(4))
+    # The next 4 are the not() of the previous 4
+    directions = directions.addBands(directions.select(0).Not().multiply(5))
+    directions = directions.addBands(directions.select(1).Not().multiply(6))
+    directions = directions.addBands(directions.select(2).Not().multiply(7))
+    directions = directions.addBands(directions.select(3).Not().multiply(8))
 
-  # Mask all values that are not 1-8
-  directions = directions.updateMask(gradmask)
+    # Mask all values that are not 1-8
+    directions = directions.updateMask(gradmask)
 
-  # "collapse" the stack into a singe band image (due to masking, each pixel has just one value (1-8) in it's directional band, and is otherwise masked)
-  directions = directions.reduce(ee.Reducer.sum())  
+    # "collapse" the stack into a singe band image (due to masking, each pixel has just one value (1-8) in it's directional band, and is otherwise masked)
+    directions = directions.reduce(ee.Reducer.sum())  
 
-  #var pal = ['ffffff','ff0000','ffff00', '00ff00', '00ffff', '0000ff', 'ff00ff', '000000']
-  #Map.addLayer(directions.reduce(ee.Reducer.sum()), {min:1, max:8, palette: pal}, 'Directions', false)
+    #var pal = ['ffffff','ff0000','ffff00', '00ff00', '00ffff', '0000ff', 'ff00ff', '000000']
+    #Map.addLayer(directions.reduce(ee.Reducer.sum()), {min:1, max:8, palette: pal}, 'Directions', false)
 
-  sample_stats = sample_var.divide(sample_mean.multiply(sample_mean))
+    sample_stats = sample_var.divide(sample_mean.multiply(sample_mean))
 
-  # Calculate localNoiseVariance
-  sigmaV = sample_stats.toArray().arraySort().arraySlice(0,0,5).arrayReduce(ee.Reducer.mean(), [0])
+    # Calculate localNoiseVariance
+    sigmaV = sample_stats.toArray().arraySort().arraySlice(0,0,5).arrayReduce(ee.Reducer.mean(), [0])
 
-  # Set up the 7*7 kernels for directional statistics
-  rect_weights = ee.List.repeat(ee.List.repeat(0,7),3).cat(ee.List.repeat(ee.List.repeat(1,7),4))
+    # Set up the 7*7 kernels for directional statistics
+    rect_weights = ee.List.repeat(ee.List.repeat(0,7),3).cat(ee.List.repeat(ee.List.repeat(1,7),4))
 
-  diag_weights = ee.List([[1,0,0,0,0,0,0], [1,1,0,0,0,0,0], [1,1,1,0,0,0,0], [1,1,1,1,0,0,0], [1,1,1,1,1,0,0], [1,1,1,1,1,1,0], [1,1,1,1,1,1,1]])
+    diag_weights = ee.List([[1,0,0,0,0,0,0], [1,1,0,0,0,0,0], [1,1,1,0,0,0,0], [1,1,1,1,0,0,0], [1,1,1,1,1,0,0], [1,1,1,1,1,1,0], [1,1,1,1,1,1,1]])
 
-  rect_kernel = ee.Kernel.fixed(7,7, rect_weights, 3, 3, False)
-  diag_kernel = ee.Kernel.fixed(7,7, diag_weights, 3, 3, False)
+    rect_kernel = ee.Kernel.fixed(7,7, rect_weights, 3, 3, False)
+    diag_kernel = ee.Kernel.fixed(7,7, diag_weights, 3, 3, False)
 
-  # Create stacks for mean and variance using the original kernels. Mask with relevant direction.
-  dir_mean = img.reduceNeighborhood(ee.Reducer.mean(), rect_kernel).updateMask(directions.eq(1))
-  dir_var = img.reduceNeighborhood(ee.Reducer.variance(), rect_kernel).updateMask(directions.eq(1))
+    # Create stacks for mean and variance using the original kernels. Mask with relevant direction.
+    dir_mean = img.reduceNeighborhood(ee.Reducer.mean(), rect_kernel).updateMask(directions.eq(1))
+    dir_var = img.reduceNeighborhood(ee.Reducer.variance(), rect_kernel).updateMask(directions.eq(1))
 
-  dir_mean = dir_mean.addBands(img.reduceNeighborhood(ee.Reducer.mean(), diag_kernel).updateMask(directions.eq(2)))
-  dir_var = dir_var.addBands(img.reduceNeighborhood(ee.Reducer.variance(), diag_kernel).updateMask(directions.eq(2)))
+    dir_mean = dir_mean.addBands(img.reduceNeighborhood(ee.Reducer.mean(), diag_kernel).updateMask(directions.eq(2)))
+    dir_var = dir_var.addBands(img.reduceNeighborhood(ee.Reducer.variance(), diag_kernel).updateMask(directions.eq(2)))
 
-  # and add the bands for rotated kernels
-  for i in range(1, 4):
-    dir_mean = dir_mean.addBands(img.reduceNeighborhood(ee.Reducer.mean(), rect_kernel.rotate(i)).updateMask(directions.eq(2*i+1)))
-    dir_var = dir_var.addBands(img.reduceNeighborhood(ee.Reducer.variance(), rect_kernel.rotate(i)).updateMask(directions.eq(2*i+1)))
-    dir_mean = dir_mean.addBands(img.reduceNeighborhood(ee.Reducer.mean(), diag_kernel.rotate(i)).updateMask(directions.eq(2*i+2)))
-    dir_var = dir_var.addBands(img.reduceNeighborhood(ee.Reducer.variance(), diag_kernel.rotate(i)).updateMask(directions.eq(2*i+2)))
+    # and add the bands for rotated kernels
+    for i in range(1, 4):
+      dir_mean = dir_mean.addBands(img.reduceNeighborhood(ee.Reducer.mean(), rect_kernel.rotate(i)).updateMask(directions.eq(2*i+1)))
+      dir_var = dir_var.addBands(img.reduceNeighborhood(ee.Reducer.variance(), rect_kernel.rotate(i)).updateMask(directions.eq(2*i+1)))
+      dir_mean = dir_mean.addBands(img.reduceNeighborhood(ee.Reducer.mean(), diag_kernel.rotate(i)).updateMask(directions.eq(2*i+2)))
+      dir_var = dir_var.addBands(img.reduceNeighborhood(ee.Reducer.variance(), diag_kernel.rotate(i)).updateMask(directions.eq(2*i+2)))
 
-  # "collapse" the stack into a single band image (due to masking, each pixel has just one value in it's directional band, and is otherwise masked)
-  dir_mean = dir_mean.reduce(ee.Reducer.sum())
-  dir_var = dir_var.reduce(ee.Reducer.sum())
+    # "collapse" the stack into a single band image (due to masking, each pixel has just one value in it's directional band, and is otherwise masked)
+    dir_mean = dir_mean.reduce(ee.Reducer.sum())
+    dir_var = dir_var.reduce(ee.Reducer.sum())
 
-  # A finally generate the filtered value
-  varX = dir_var.subtract(dir_mean.multiply(dir_mean).multiply(sigmaV)).divide(sigmaV.add(1.0))
-  b = varX.divide(dir_var)
+    # A finally generate the filtered value
+    varX = dir_var.subtract(dir_mean.multiply(dir_mean).multiply(sigmaV)).divide(sigmaV.add(1.0))
+    b = varX.divide(dir_var)
 
-  result = dir_mean.add(b.multiply(img.subtract(dir_mean)))
-  result = result.arrayFlatten([['sum']]).float().toBands().rename(bandNames).copyProperties(img)
-  result = ee.Image(result).addBands(img.select('angle'), None, True)
-  result = result.set('system:time_start', img.get('system:time_start'))
+    result = dir_mean.add(b.multiply(img.subtract(dir_mean)))
+    result = result.arrayFlatten([['sum']]).float().toBands().rename(bandNames).copyProperties(img)
 
-  return result
+    return image.addBands(result, None, True)
 
 
 def leesigma(image,KERNEL_SIZE):
@@ -201,10 +219,10 @@ def leesigma(image,KERNEL_SIZE):
     sigma = 0.9
     enl = 4
     target_kernel = 3
-    bandNames = image.bandNames()
+    bandNames = image.bandNames().remove('angle')
   
     #compute the 98 percentile intensity 
-    z98 = ee.Dictionary(image.reduceRegion(
+    z98 = ee.Dictionary(image.select(bandNames).reduceRegion(
                 reducer= ee.Reducer.percentile([98], None,255,0.001,1e6),
                 geometry= image.geometry(),
                 scale=10,
@@ -213,7 +231,7 @@ def leesigma(image,KERNEL_SIZE):
   
 
     #select the strong scatterers to retain
-    aboveThresh = image.gte(z98)
+    aboveThresh = image.select(bandNames).gte(z98)
     K = aboveThresh.reduceNeighborhood(ee.Reducer.sum()
             ,ee.Kernel.square(target_kernel/2)) 
     retainPixel = K.gte(Tk)
@@ -224,12 +242,24 @@ def leesigma(image,KERNEL_SIZE):
     eta = 1.0/math.sqrt(enl) 
     eta = ee.Image.constant(eta)
     #MMSE applied to estimate the apriori mean
-    z_bar = image.reduceNeighborhood(reducer= ee.Reducer.mean(),kernel= ee.Kernel.square((target_kernel/2), 'pixels'))
-    varz = image.reduceNeighborhood(reducer= ee.Reducer.variance(),kernel= ee.Kernel.square((target_kernel/2), 'pixels'))
+    reducers = ee.Reducer.mean().combine( \
+                      reducer2= ee.Reducer.variance(), \
+                      sharedInputs= True
+                      )
+    stats = image.select(bandNames).reduceNeighborhood( \
+                      reducer= reducers, \
+                          kernel= ee.Kernel.square(target_kernel/2,'pixels'), \
+                              optimization= 'window')
+    meanBand = bandNames.map(lambda bandName: ee.String(bandName).cat('_mean'))
+    varBand = bandNames.map(lambda bandName:  ee.String(bandName).cat('_variance'))
+        
+    z_bar = stats.select(meanBand)
+    varz = stats.select(varBand)
+    
     oneImg = ee.Image.constant(1)
     varx = (varz.subtract(z_bar.abs().pow(2).multiply(eta.pow(2)))).divide(oneImg.add(eta.pow(2)))
     b = varx.divide(varz)
-    xTilde = oneImg.subtract(b).multiply(z_bar.abs()).add(b.multiply(image))
+    xTilde = oneImg.subtract(b).multiply(z_bar.abs()).add(b.multiply(image.select(bandNames)))
   
     #step 3: compute the sigma range
     #Lookup table (J.S.Lee et al 2009) for range and eta values for intensity (only 4 look is shown here)
@@ -255,11 +285,18 @@ def leesigma(image,KERNEL_SIZE):
   
     #step 3: apply MMSE filter for pixels in the sigma range
     #MMSE estimator
-    mask = image.gte(I1).Or(image.lte(I2))
-    z = image.updateMask(mask)
+    mask = image.select(bandNames).gte(I1).Or(image.select(bandNames).lte(I2))
+    z = image.select(bandNames).updateMask(mask)
   
-    z_bar = z.reduceNeighborhood(reducer= ee.Reducer.mean(),kernel= ee.Kernel.square((KERNEL_SIZE/2), 'pixels'))
-    varz = z.reduceNeighborhood(reducer= ee.Reducer.variance(),kernel= ee.Kernel.square((KERNEL_SIZE/2), 'pixels'))
+    stats = z.reduceNeighborhood( \
+                      reducer= reducers, \
+                          kernel= ee.Kernel.square(KERNEL_SIZE/2,'pixels'), \
+                              optimization= 'window')
+        
+    z_bar = stats.select(meanBand)
+    varz = stats.select(varBand)
+    
+    
     varx = (varz.subtract(z_bar.abs().pow(2).multiply(nEta.pow(2)))).divide(oneImg.add(nEta.pow(2)))
     b = varx.divide(varz)
     #if b is negative set it to zero
@@ -267,10 +304,9 @@ def leesigma(image,KERNEL_SIZE):
     xHat = oneImg.subtract(new_b).multiply(z_bar.abs()).add(new_b.multiply(z))
   
     #remove the applied masks and merge the retained pixels and the filtered pixels
-    xHat = image.updateMask(retainPixel).unmask(xHat)
-    output = ee.Image(xHat).rename(bandNames).copyProperties(image)
-    output = ee.Image(output).addBands(image.select('angle'), None, True)
-    return output.set('system:time_start', image.get('system:time_start')) 
+    xHat = image.select(bandNames).updateMask(retainPixel).unmask(xHat)
+    output = ee.Image(xHat).rename(bandNames)
+    return image.addBands(output, None, True)
 
 
 #---------------------------------------------------------------------------//
@@ -295,7 +331,7 @@ def MonoTemporal_Filter(coll,KERNEL_SIZE, SPECKLE_FILTER) :
    return coll.map(_filter)
 
 #---------------------------------------------------------------------------//
-# 3. Multi-temporal speckle filter
+# 3. MULTI-TEMPORAL SPECKLE FILTER
 #---------------------------------------------------------------------------//
 """ The following Multi-temporal speckle filters are implemented as described in
 S. Quegan and J. J. Yu, “Filtering of multichannel SAR images,” 
