@@ -1,11 +1,10 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-Created on Sat Mar  6 10:55:17 2021
-
-@author: adugnamullissa
-
-    Applies preprocessing to a collection of S1 images to return an analysis ready sentinel-1 data. 
+Version: v1.2
+Date: 2021-03-12
+Authors: Mullissa A., Vollrath A.,  Reiche J., Slagter B., Balling J. , Gou Y., Braun, C.
+Description: This script creates an analysis ready S1 image collection.
 
     params:
         ROI: The region to include imagery within. (ee.Geometry) The user has to interactively draw a bounding box within the map window.
