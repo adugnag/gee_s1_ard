@@ -1,9 +1,11 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-Created on Thu Mar 11 19:22:58 2021
-
-@author: adugnamullissa
+Version: v1.0
+Date: 2021-03-12
+Authors: Mullissa A., Vollrath A.,  Reiche J., Slagter B., Balling J. , Gou Y., Braun, C.
+Description: This code is adopted from Vollrath, A., Mullissa, A., & Reiche, J. (2020). Angular-Based Radiometric Slope Correction for Sentinel-1 on Google Earth Engine. 
+  Remote Sensing, 12(11), [1867]. https://doi.org/10.3390/rs12111867 
 """
 
 import ee
@@ -18,9 +20,6 @@ def slope_correction(collection, TERRAIN_FLATTENING_MODEL \
                                               ,POLARIZATION \
                                               ,TERRAIN_FLATTENING_ADDITIONAL_LAYOVER_SHADOW_BUFFER):
   
-  """ Vollrath, A., Mullissa, A., & Reiche, J. (2020). Angular-Based Radiometric Slope Correction for Sentinel-1 on Google Earth Engine. 
-  Remote Sensing, 12(11), [1867]. https://doi.org/10.3390/rs12111867 """
-  
   ninetyRad = ee.Image.constant(90).multiply(math.pi/180)
 
   def _volumetric_model_SCF(theta_iRad, alpha_rRad):
@@ -30,14 +29,12 @@ def slope_correction(collection, TERRAIN_FLATTENING_MODEL \
       denominator = (ninetyRad.subtract(theta_iRad)).tan()
       return nominator.divide(denominator)
 
-
   def _direct_model_SCF(theta_iRad, alpha_rRad, alpha_azRad):
       # Surface model
       nominator = (ninetyRad.subtract(theta_iRad)).cos()
       denominator = alpha_azRad.cos() \
         .multiply((ninetyRad.subtract(theta_iRad).add(alpha_rRad)).cos())
       return nominator.divide(denominator)
-
   
   def _erode(image, distance):
       #buffer function (thanks Noel)
@@ -46,8 +43,7 @@ def slope_correction(collection, TERRAIN_FLATTENING_MODEL \
           .fastDistanceTransform(30).sqrt()
           .multiply(ee.Image.pixelArea().sqrt()))
     
-      return image.updateMask(d.gt(distance))
-    
+      return image.updateMask(d.gt(distance))    
   
   def _masking(alpha_rRad, theta_iRad, buffer):
       # calculate masks
@@ -103,16 +99,13 @@ def slope_correction(collection, TERRAIN_FLATTENING_MODEL \
         
       if (TERRAIN_FLATTENING_MODEL == 'DIRECT'):
             scf = _direct_model_SCF(theta_iRad, alpha_rRad, alpha_azRad)
-
         
        #apply model for Gamm0
       gamma0_flat = gamma0.divide(scf)
 
       #get Layover/Shadow mask
       mask = _masking(alpha_rRad, theta_iRad, TERRAIN_FLATTENING_ADDITIONAL_LAYOVER_SHADOW_BUFFER)
-
-      output = gamma0_flat.mask(mask).rename(bandNames).copyProperties(image)
-        
+      output = gamma0_flat.mask(mask).rename(bandNames).copyProperties(image)       
       output = ee.Image(output).addBands(image.select('angle'))
         
       return output.set('system:time_start', image.get('system:time_start'))  
