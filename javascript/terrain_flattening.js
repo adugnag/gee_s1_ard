@@ -1,10 +1,14 @@
+/*
+Version: v1.0
+Date: 2021-03-12
+Authors: Mullissa A., Vollrath A.,  Reiche J., Slagter B., Balling J. , Gou Y., Braun, C.
+Description: This code is adopted from Vollrath, A., Mullissa, A., & Reiche, J. (2020). Angular-Based Radiometric Slope Correction for Sentinel-1 on Google Earth Engine. 
+  Remote Sensing, 12(11), [1867]. https://doi.org/10.3390/rs12111867 */
 
 //---------------------------------------------------------------------------//
 // Terrain Flattening
 //---------------------------------------------------------------------------//
-/* Vollrath, A., Mullissa, A., & Reiche, J. (2020). Angular-Based Radiometric Slope Correction for Sentinel-1 on Google Earth Engine. 
-Remote Sensing, 12(11), [1867]. https://doi.org/10.3390/rs12111867
-*/ 
+
 exports.slope_correction = function(collection, TERRAIN_FLATTENING_MODEL, 
     DEM, 
     POLARIZATION,
