@@ -5,7 +5,7 @@ Version: v1.0
 Date: 2021-03-12
 Authors: Mullissa A., Vollrath A.,  Reiche J., Slagter B., Balling J. , Gou Y., Braun, C.
 Description: Function to mask out edges of images using using angle.
-    SAdopted from: Hird et al. 2017 Remote Sensing (supplementary material): http://www.mdpi.com/2072-4292/9/12/1315)
+    Adopted from: Hird et al. 2017 Remote Sensing (supplementary material): http://www.mdpi.com/2072-4292/9/12/1315)
 """
 
 import ee
