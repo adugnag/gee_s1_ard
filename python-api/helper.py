@@ -13,10 +13,10 @@ import ee
 #---------------------------------------------------------------------------//
 
 def lin_to_db(image):
-  """ Convert backscatter from linear to dB. """
-  bandNames = image.bandNames().remove('angle')
-  db = ee.Image.constant(10).multiply(image.log10()).rename(bandNames)
-  return image.addBands(db, None, True)
+    """ Convert backscatter from linear to dB. """
+    bandNames = image.bandNames().remove('angle')
+    db = ee.Image.constant(10).multiply(image.log10()).rename(bandNames)
+    return image.addBands(db, None, True)
 
 def lin_to_db2(image):
     """ Convert backscatter from linear to dB by removing the ratio band. """
