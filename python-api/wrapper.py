@@ -109,7 +109,7 @@ def s1_preproc(params):
                 .filterBounds(ROI)
     
     
-    if (ORBIT !== 'BOTH'):
+    if (ORBIT != 'BOTH'):
         s1 = s1.filter(ee.Filter.eq('orbitProperties_pass', ORBIT))}
     
     #########################
