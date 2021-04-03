@@ -3,4 +3,7 @@ Google Earth Engine has been a valuable resource for earth observation researche
 
 ![flowchart](https://user-images.githubusercontent.com/48068921/113488349-ce8cdd00-94bd-11eb-8bc5-a72f0fc7ecc6.png)
 
+# Usage 
+The Javascript implementation can be copied to GEE code editor. The python API provided here can be run using the terminal. The user should install earthengine-api locally or in the cloud VM. 
+
 # Requirement
