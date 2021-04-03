@@ -7,3 +7,8 @@ Google Earth Engine has been a valuable resource for earth observation researche
 The Javascript implementation can be copied to GEE code editor. To use the python API provided here, the user should launch the s1_ard_test.py script using the terminal. The user should install earthengine-api locally or in the cloud VM. 
 
 # Requirement
+There is not additional requirement to run the Javascript implementation in GEE code editor. To run the Python implementation, the user should have Python 3.6 or more and have earthengine-api installed.
+
+# References
+Mullissa A., Vollrath A.,  Reiche J., Slagter B., Balling J. , Gou Y., Braun, C., 2021. Sentinel-1 Analysis Ready Data Preparation in Google Earth Engine,
+Remote Sensing, 
