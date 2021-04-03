@@ -127,7 +127,7 @@ def s1_preproc(params):
     # 2. ADDITIONAL BORDER NOISE CORRECTION
     ###########################################
     
-    if (APPLY_BORDER_NOISE_CORRECTION == True):
+    if (APPLY_BORDER_NOISE_CORRECTION):
       s1_1 = s1.map(bnc.f_mask_edges)
     else : 
       s1_1 = s1
