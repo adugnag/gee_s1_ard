@@ -36,7 +36,7 @@ def s1_preproc(params):
 
     Returns
     -------
-    s1_1 : ee image collection
+    ee.ImageCollection
         A processed Sentinel-1 image collection
 
     """
