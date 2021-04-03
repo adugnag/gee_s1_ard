@@ -404,7 +404,7 @@ def MonoTemporal_Filter(coll,KERNEL_SIZE, SPECKLE_FILTER) :
 
     Returns
     -------
-    ee Image Collection
+    ee.ImageCollection
         An image collection where a mono-temporal filter is applied to each 
         image individually
 
@@ -445,7 +445,7 @@ def MultiTemporal_Filter(coll,KERNEL_SIZE, SPECKLE_FILTER,NR_OF_IMAGES):
 
     Returns
     -------
-    ee Image Collection
+    ee.ImageCollection
         An image collection where a multi-temporal filter is applied to each
         image individually
 
