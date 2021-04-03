@@ -99,7 +99,7 @@ def s1_preproc(params):
     
     
     ###########################################
-    # 1. IMPORT COLLECTION
+    # 1. DATA SELECTION
     ###########################################
     
     s1 = ee.ImageCollection('COPERNICUS/S1_GRD_FLOAT') \
@@ -112,9 +112,6 @@ def s1_preproc(params):
     if (ORBIT != 'BOTH'):
         s1 = s1.filter(ee.Filter.eq('orbitProperties_pass', ORBIT))}
     
-    #########################
-    # 2. SELECT POLARIZATION
-    #########################
     
     if (POLARIZATION == 'VV'):
       s1 = s1.select(['VV','angle'])
@@ -122,16 +119,12 @@ def s1_preproc(params):
       s1 = s1.select(['VH','angle'])
     elif (POLARIZATION == 'VVVH'):
       s1 = s1.select(['VV','VH','angle'])  
-      
-    ########################
-    # 3. CLIP TO ROI
-    ####################### 
     
-    if (CLIP_TO_ROI == True):
+    if (CLIP_TO_ROI):
       s1 = s1.map(lambda image: image.clip(ROI))
     
     ###########################################
-    # 4. ADDITIONAL BORDER NOISE CORRECTION
+    # 2. ADDITIONAL BORDER NOISE CORRECTION
     ###########################################
     
     if (APPLY_BORDER_NOISE_CORRECTION == True):
@@ -141,7 +134,7 @@ def s1_preproc(params):
           
       
     ########################
-    # 5. SPECKLE FILTERING
+    # 3. SPECKLE FILTERING
     ####################### 
     
     if (APPLY_SPECKLE_FILTERING) :
@@ -152,7 +145,7 @@ def s1_preproc(params):
 
               
     ########################
-    # 6. TERRAIN CORRECTION
+    # 4. TERRAIN CORRECTION
     ####################### 
     
     if (APPLY_TERRAIN_FLATTENING):
@@ -163,15 +156,11 @@ def s1_preproc(params):
                               ,TERRAIN_FLATTENING_ADDITIONAL_LAYOVER_SHADOW_BUFFER)
               
     ########################
-    # 7. FORMAT CONVERSION
+    # 5. OUTPUT
     ####################### 
     
     if (FORMAT == 'DB'):
         s1_1 = s1_1.map(helper.lin_to_db)
-        
-    ########################
-    # 8. EXPORT ASSET
-    #######################  
     
 
     if (SAVE_ASSET): 
