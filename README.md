@@ -9,6 +9,6 @@ The Javascript implementation can be copied to GEE code editor. To use the pytho
 # Requirement
 There is not additional requirement to run the Javascript implementation in GEE code editor. To run the Python implementation, the user should have Python 3.6 or more and have earthengine-api installed.
 
-# References
+# Reference
 Mullissa A., Vollrath A.,  Reiche J., Slagter B., Balling J. , Gou Y., Braun, C., 2021. Sentinel-1 Analysis Ready Data Preparation in Google Earth Engine,
 Remote Sensing, 
