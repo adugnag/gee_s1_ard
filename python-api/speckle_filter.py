@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
+
 """
 Version: v1.0
 Date: 2021-03-12
@@ -8,12 +9,27 @@ Authors: Mullissa A., Vollrath A.,  Reiche J., Slagter B., Balling J. , Gou Y., 
 import ee
 import math
 
-#---------------------------------------------------------------------------//
+# ---------------------------------------------------------------------------//
 # 1.SPECKLE FILTERS
-#---------------------------------------------------------------------------//
+# ---------------------------------------------------------------------------//
 
 def boxcar(image, KERNEL_SIZE):
-    """Applies boxcar filter on every image in the collection."""
+    """
+    Apply boxcar filter on every image in the collection.
+
+    Parameters
+    ----------
+    image : ee.Image
+        Image to be filtered
+    KERNEL_SIZE : positive odd integer
+        Neighbourhood window size
+
+    Returns
+    -------
+    ee.Image
+        Filtered Image
+
+    """
     bandNames = image.bandNames().remove('angle')
       #Define a boxcar kernel
     kernel = ee.Kernel.square((KERNEL_SIZE/2), units='pixels', normalize=True)
@@ -21,58 +37,88 @@ def boxcar(image, KERNEL_SIZE):
     output = image.select(bandNames).convolve(kernel).rename(bandNames)
     return image.addBands(output, None, True)
 
+def leefilter(image, KERNEL_SIZE):
+    """
+    Lee Filter applied to one image.
+    It is implemented as described in
+    J. S. Lee, “Digital image enhancement and noise filtering by use of local statistics,”
+    IEEE Pattern Anal. Machine Intell., vol. PAMI-2, pp. 165–168, Mar. 1980.
 
-def leefilter(image,KERNEL_SIZE):
-    """Lee Filter applied to one image. It is implemented as described in 
-    J. S. Lee, “Digital image enhancement and noise filtering by use of local statistics,” 
-    IEEE Pattern Anal. Machine Intell., vol. PAMI-2, pp. 165–168, Mar. 1980."""
-        
+    Parameters
+    ----------
+    image : ee.Image
+        Image to be filtered
+    KERNEL_SIZE : positive odd integer
+        Neighbourhood window size
+
+    Returns
+    -------
+    ee.Image
+        Filtered Image
+
+    """
     bandNames = image.bandNames().remove('angle')
-  
-    #S1-GRD images are multilooked 5 times in range
+
+    # S1-GRD images are multilooked 5 times in range
     enl = 5
-    #Compute the speckle standard deviation
-    eta = 1.0/math.sqrt(enl) 
+    # Compute the speckle standard deviation
+    eta = 1.0/math.sqrt(enl)
     eta = ee.Image.constant(eta)
 
-    #MMSE estimator
-    #Neighbourhood mean and variance
+    # MMSE estimator
+    # Neighbourhood mean and variance
     oneImg = ee.Image.constant(1)
-    #Estimate stats
-    reducers = ee.Reducer.mean().combine( \
-                      reducer2= ee.Reducer.variance(), \
-                      sharedInputs= True
+    # Estimate stats
+    reducers = ee.Reducer.mean().combine(
+                      reducer2= ee.Reducer.variance()
+                      ,sharedInputs= True
                       )
-    stats = image.select(bandNames).reduceNeighborhood( \
-                      reducer= reducers, \
-                          kernel= ee.Kernel.square(KERNEL_SIZE/2,'pixels'), \
-                              optimization= 'window')
+    stats = image.select(bandNames).reduceNeighborhood(
+                      reducer= reducers
+                          ,kernel= ee.Kernel.square(KERNEL_SIZE/2, 'pixels')
+                              ,optimization= 'window')
     meanBand = bandNames.map(lambda bandName: ee.String(bandName).cat('_mean'))
     varBand = bandNames.map(lambda bandName:  ee.String(bandName).cat('_variance'))
-        
+
     z_bar = stats.select(meanBand)
     varz = stats.select(varBand)
-    #Estimate weight 
+    # Estimate weight 
     varx = (varz.subtract(z_bar.pow(2).multiply(eta.pow(2)))).divide(oneImg.add(eta.pow(2)))
     b = varx.divide(varz)
   
-    #if b is negative set it to zero
+    # if b is negative set it to zero
     new_b = b.Where(b.lt(0), 0)
     output = oneImg.subtract(new_b).multiply(z_bar.abs()).add(new_b.multiply(image.select(bandNames)))
     output = output.rename(bandNames)
     return image.addBands(output, None, True)
 
 
-def gammamap(image,KERNEL_SIZE): 
-    """ Gamma Maximum a-posterior Filter applied to one image. It is implemented as described in 
-    Lopes A., Nezry, E., Touzi, R., and Laur, H., 1990.  Maximum A Posteriori Speckle Filtering and First Order texture Models in SAR Images.  
-    International  Geoscience  and  Remote  Sensing  Symposium (IGARSS). """
+def gammamap(image, KERNEL_SIZE): 
+    """
+    Gamma Maximum a-posterior Filter applied to one image. It is implemented as described in 
+    Lopes A., Nezry, E., Touzi, R., and Laur, H., 1990.  
+    Maximum A Posteriori Speckle Filtering and First Order texture Models in SAR Images.  
+    International  Geoscience  and  Remote  Sensing  Symposium (IGARSS).
+
+    Parameters
+    ----------
+    image : ee.Image
+        Image to be filtered
+    KERNEL_SIZE : positive odd integer
+        Neighbourhood window size
+
+    Returns
+    -------
+    ee.Image
+        Filtered Image
+
+    """
     enl = 5
     bandNames = image.bandNames().remove('angle')
-    #local mean
-    reducers = ee.Reducer.mean().combine( \
-                      reducer2= ee.Reducer.stdDev(), \
-                      sharedInputs= True
+    # local mean
+    reducers = ee.Reducer.mean().combine(
+                      reducer2= ee.Reducer.stdDev()
+                      ,sharedInputs= True
                       )
     stats = image.select(bandNames).reduceNeighborhood( \
                       reducer= reducers, \
@@ -84,11 +130,11 @@ def gammamap(image,KERNEL_SIZE):
     z = stats.select(meanBand)
     sigz = stats.select(stdDevBand)
     
-    #local observed coefficient of variation
+    # local observed coefficient of variation
     ci = sigz.divide(z)
-    #noise coefficient of variation (or noise sigma)
+    # noise coefficient of variation (or noise sigma)
     cu = 1.0/math.sqrt(enl)
-    #threshold for the observed coefficient of variation
+    # threshold for the observed coefficient of variation
     cmax = math.sqrt(2.0) * cu
     cu = ee.Image.constant(cu)
     cmax = ee.Image.constant(cmax)
@@ -98,24 +144,37 @@ def gammamap(image,KERNEL_SIZE):
 
     alpha = oneImg.add(cu.pow(2)).divide(ci.pow(2).subtract(cu.pow(2)))
 
-    #Implements the Gamma MAP filter described in equation 11 in Lopez et al. 1990
+    # Implements the Gamma MAP filter described in equation 11 in Lopez et al. 1990
     q = image.select(bandNames).expression("z**2 * (z * alpha - enl - 1)**2 + 4 * alpha * enl * b() * z", z= z, alpha= alpha,enl= enl)
     rHat = z.multiply(alpha.subtract(enlImg).subtract(oneImg)).add(q.sqrt()).divide(twoImg.multiply(alpha))
   
-    #if ci <= cu then its a homogenous region ->> boxcar filter
+    # if ci <= cu then its a homogenous region ->> boxcar filter
     zHat = (z.updateMask(ci.lte(cu))).rename(bandNames)
-    #if cmax > ci > cu then its a textured medium ->> apply Gamma MAP filter
+    # if cmax > ci > cu then its a textured medium ->> apply Gamma MAP filter
     rHat = (rHat.updateMask(ci.gt(cu)).updateMask(ci.lt(cmax))).rename(bandNames)
-    #ci>cmax then its strong signal ->> retain
+    # ci>cmax then its strong signal ->> retain
     x = image.select(bandNames).updateMask(ci.gte(cmax)).rename(bandNames)  
     #Merge
     output = ee.ImageCollection([zHat,rHat,x]).sum()
     return image.addBands(output, None, True)
 
 def RefinedLee(image):
-    """ This filter is modified from the implementation by Guido Lemoine 
-    Source: Lemoine et al. https://code.earthengine.google.com/5d1ed0a0f0417f098fdfd2fa137c3d0c
     """
+    This filter is modified from the implementation by Guido Lemoine 
+    Source: Lemoine et al. https://code.earthengine.google.com/5d1ed0a0f0417f098fdfd2fa137c3d0c
+
+    Parameters
+    ----------
+    image : ee.Image
+        Image to be filtered
+
+    Returns
+    -------
+    ee.Image
+        Filtered Image
+
+    """
+
     bandNames = image.bandNames().remove('angle')
     img = image.select(bandNames)
     # Set up 3x3 kernels 
@@ -211,9 +270,26 @@ def RefinedLee(image):
 
 
 def leesigma(image,KERNEL_SIZE):
-    """/** Implements the improved lee sigma filter to one image. 
-    It is implemented as described in, Lee, J.-S. Wen, J.-H. Ainsworth, T.L. Chen, K.-S. Chen, A.J. Improved sigma filter for speckle filtering of SAR imagery. 
-    IEEE Trans. Geosci. Remote Sens. 2009, 47, 202–213. """
+    """
+    Implements the improved lee sigma filter to one image. 
+    It is implemented as described in, Lee, J.-S. Wen, J.-H. Ainsworth, T.L. Chen, K.-S. Chen, A.J. 
+    Improved sigma filter for speckle filtering of SAR imagery. 
+    IEEE Trans. Geosci. Remote Sens. 2009, 47, 202–213.
+
+    Parameters
+    ----------
+    image : ee.Image
+        Image to be filtered
+    KERNEL_SIZE : positive odd integer
+        Neighbourhood window size
+
+    Returns
+    -------
+    ee.Image
+        Filtered Image
+
+    """
+
     #parameters
     Tk = ee.Image.constant(7) #number of bright pixels in a 3x3 window
     sigma = 0.9
@@ -313,40 +389,107 @@ def leesigma(image,KERNEL_SIZE):
 """Mono-temporal speckle Filter  """
 
 def MonoTemporal_Filter(coll,KERNEL_SIZE, SPECKLE_FILTER) :
-   def _filter(image):    
-      if (SPECKLE_FILTER=='BOXCAR'):
-          _filtered = boxcar(image, KERNEL_SIZE)
-      elif (SPECKLE_FILTER=='LEE'):
-        _filtered = leefilter(image, KERNEL_SIZE)
-      elif (SPECKLE_FILTER=='GAMMA MAP'):
-        _filtered = gammamap(image, KERNEL_SIZE)
-      elif (SPECKLE_FILTER=='REFINED LEE'):
-        _filtered = RefinedLee(image)
-      elif (SPECKLE_FILTER=='LEE SIGMA'):
-        _filtered = leesigma(image, KERNEL_SIZE)
-      return _filtered
-   return coll.map(_filter)
+    """
+    A wrapper function for monotemporal filter
 
-#---------------------------------------------------------------------------//
+    Parameters
+    ----------
+    coll : ee Image collection
+        the image collection to be filtered
+    KERNEL_SIZE : odd integer
+        Spatial Neighbourhood window
+    SPECKLE_FILTER : String
+        Type of speckle filter
+
+    Returns
+    -------
+    ee Image Collection
+        An image collection where a mono-temporal filter is applied to each 
+        image individually
+
+    """
+    def _filter(image):    
+       if (SPECKLE_FILTER=='BOXCAR'):
+          _filtered = boxcar(image, KERNEL_SIZE)
+       elif (SPECKLE_FILTER=='LEE'):
+          _filtered = leefilter(image, KERNEL_SIZE)
+       elif (SPECKLE_FILTER=='GAMMA MAP'):
+          _filtered = gammamap(image, KERNEL_SIZE)
+       elif (SPECKLE_FILTER=='REFINED LEE'):
+          _filtered = RefinedLee(image)
+       elif (SPECKLE_FILTER=='LEE SIGMA'):
+          _filtered = leesigma(image, KERNEL_SIZE)
+       return _filtered
+    return coll.map(_filter)
+
+# ---------------------------------------------------------------------------//
 # 3. MULTI-TEMPORAL SPECKLE FILTER
-#---------------------------------------------------------------------------//
-""" The following Multi-temporal speckle filters are implemented as described in
-S. Quegan and J. J. Yu, “Filtering of multichannel SAR images,” 
-IEEE Trans Geosci. Remote Sensing, vol. 39, Nov. 2001."""
+# ---------------------------------------------------------------------------//
 
 def MultiTemporal_Filter(coll,KERNEL_SIZE, SPECKLE_FILTER,NR_OF_IMAGES):
+    """
+
+    A wrapper function for multi-temporal filter
+
+    Parameters
+    ----------
+    coll : ee Image collection
+        the image collection to be filtered
+    KERNEL_SIZE : odd integer
+        Spatial Neighbourhood window
+    SPECKLE_FILTER : String
+        Type of speckle filter
+    NR_OF_IMAGES : integer
+        Number of images to use in multi-temporal filtering
+
+    Returns
+    -------
+    ee Image Collection
+        An image collection where a multi-temporal filter is applied to each
+        image individually
+
+    """
   
     def Quegan(image) :
-  
-        """ this function will filter the collection used for the multi-temporal part
+        """
+        The following Multi-temporal speckle filters are implemented as described in
+        S. Quegan and J. J. Yu, “Filtering of multichannel SAR images,” 
+        IEEE Trans Geosci. Remote Sensing, vol. 39, Nov. 2001.
+        
+        this function will filter the collection used for the multi-temporal part
         it takes care of:
         - same image geometry (i.e relative orbit)
         - full overlap of image
         - amount of images taken for filtering 
             -- all before
-           -- if not enough, images taken after the image to filter are added """
+           -- if not enough, images taken after the image to filter are added
+
+        Parameters
+        ----------
+        image : ee.Image
+            Image to be filtered
+
+        Returns
+        -------
+        ee.Image
+            Filtered image
+
+        """
     
         def get_filtered_collection(image):
+            """
+            Generate a dedicated image collection
+
+            Parameters
+            ----------
+            image : ee.Image
+                Image whose geometry to use to define the new collection
+
+            Returns
+            -------
+            ee Image collection
+
+            """
   
             #filter collection over are and by relative orbit
             s1_coll = ee.ImageCollection('COPERNICUS/S1_GRD_FLOAT') \
@@ -404,6 +547,20 @@ def MultiTemporal_Filter(coll,KERNEL_SIZE, SPECKLE_FILTER,NR_OF_IMAGES):
         count_img = s1.reduce(ee.Reducer.count())
 
         def inner(image):
+            """
+            Creats an image whose bands are the filtered image and image ratio
+
+            Parameters
+            ----------
+            image : ee.Image
+                Image to be filtered
+
+            Returns
+            -------
+            ee.Image
+                Filtered image and image ratio
+
+            """
             if (SPECKLE_FILTER=='BOXCAR'):
                 _filtered = boxcar(image, KERNEL_SIZE).select(bands).rename(meanBands) 
             elif (SPECKLE_FILTER=='LEE'):
