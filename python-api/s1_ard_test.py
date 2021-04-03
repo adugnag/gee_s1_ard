@@ -7,8 +7,8 @@ Authors: Mullissa A., Vollrath A.,  Reiche J., Slagter B., Balling J. , Gou Y., 
 Description: This script creates an analysis ready S1 image collection.
 
     params:
-        ROI: The region to include imagery within. (ee.Geometry) The user has to interactively draw a bounding box within the map window.
-        ORBITS:  The orbits to include. (string: ASCENDING or DESCENDING)
+        geometry: The region to include imagery within. (ee.Geometry); The user has to interactively draw a bounding box within the map window.
+        ORBITS:  The orbits to include. (string: ASCENDING, DESCENDING OR BOTH)
         START_DATE: The earliest date to include images for (inclusive).
         END_DATE: The latest date to include images for (exclusive).
         POLARIZATION: The Sentinel-1 image polarization to select for processing.
@@ -18,15 +18,18 @@ Description: This script creates an analysis ready S1 image collection.
         APPLY_SPECKLE_FILTERING: true or false options to apply speckle filter
         SPECKLE_FILTER: (Optional)   Type of speckle filtering to apply. Can be monotemporal or multitemporal.
             This is done by passing the argument 'MONO' or 'MULTI'.
-            'MONO BOXCAR' - implements a boxcar filter on each individual image in the collection
-            'MONO LEE' - implements a Lee filter on each individual image in the collection based on (J.S. Lee et al. 1980)
-            'MONO GAMMA MAP' - implements a Gamma maximum a-posterior speckle filter on each individual image in the collection based on (Lopez et al. 1990
-            'MONO REFINED LEE' - implements the Refined Lee speckle filter on each individual image in the collection
+            'BOXCAR' - implements a boxcar filter on each individual image in the collection
+            'LEE' - implements a Lee filter on each individual image in the collection based on (J.S. Lee et al. 1980)
+            'GAMMA MAP' - implements a Gamma maximum a-posterior speckle filter on each individual image in the collection based on (Lopez et al. 1990
+            'REFINED LEE' - implements the Refined Lee speckle filter on each individual image in the collection
                                   based on (J.S.Lee et al. 1999)
-            'MONO LEE SIGMA' - implements the improved Lee sigma speckle filter on each individual image in the collection
+            'LEE SIGMA' - implements the improved Lee sigma speckle filter on each individual image in the collection
                                   based on (J.S.Lee et al. 2009)
-            'MULTI' - Multitemporal Speckle filter based on the approach by Quegan and Yu 2001 with any of the above mentioned speckle filters.
+        SPECKLE_FILTER_FRAMEWORK: is the framework where filtering is applied. it can be 'MONO' or 'MULTI'. In the MONO case
+                                  the filtering is applied to each image in the collection individually. Whereas, the 
+                                  Multitemporal Speckle filter based on the approach by Quegan and Yu 2001 with any of the above mentioned speckle filters.
         SPECKLE_FILTER_KERNEL_SIZE: is the size of the filter spatial window applied in speckle filtering. must be a positive integer.
+        NR_OF_IMAGES: is the number of multi-temporal images to use in the multi-temporal filter framework.
         APPLY_BORDER_NOISE_CORRECTION: (Optional) true or false options to apply additional Border noise correction:
         TERRAIN_FLATTENING - (Optional) true or false option to apply Terrain correction based on Vollrath et al. 2020 and Hoekman and Reiche 2015 is applied. 
         TERRAIN_FLATTENING_MODEL - which model to use for radiometric terrain flattening (DIRECT, or VOLUME)
@@ -55,6 +58,7 @@ params = {  'START_DATE': '2018-01-01',
             'STOP_DATE': '2018-01-15',        
             'ORBIT': 'DESCENDING',
             'POLARIZATION': 'VVVH',
+            'ORBIT' : 'BOTH',
             'ROI': ee.Geometry.Rectangle([-47.1634, -3.00071, -45.92746, -5.43836]),
             'DEM': ee.Image('USGS/SRTMGL1_003'),
             'APPLY_BORDER_NOISE_CORRECTION': False,
