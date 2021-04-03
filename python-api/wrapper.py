@@ -155,7 +155,7 @@ def s1_preproc(params):
     # 6. TERRAIN CORRECTION
     ####################### 
     
-    if (APPLY_TERRAIN_FLATTENING == True):
+    if (APPLY_TERRAIN_FLATTENING):
         s1_1 = trf.slope_correction(s1_1 \
                               , TERRAIN_FLATTENING_MODEL \
                               ,DEM \
@@ -174,7 +174,7 @@ def s1_preproc(params):
     #######################  
     
 
-    if (SAVE_ASSET == True): 
+    if (SAVE_ASSET): 
             
         size = s1_1.size()
         imlist = s1_1.toList(size)
