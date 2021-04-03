@@ -29,6 +29,7 @@ def s1_preproc(params):
     APPLY_TERRAIN_FLATTENING = params['APPLY_TERRAIN_FLATTENING']
     APPLY_SPECKLE_FILTERING = params['APPLY_SPECKLE_FILTERING']
     POLARIZATION = params['POLARIZATION']
+    ORBIT = params['ORBIT']
     SPECKLE_FILTER_FRAMEWORK = params['SPECKLE_FILTER_FRAMEWORK']
     SPECKLE_FILTER = params['SPECKLE_FILTER']
     SPECKLE_FILTER_KERNEL_SIZE = params['SPECKLE_FILTER_KERNEL_SIZE']
@@ -53,6 +54,7 @@ def s1_preproc(params):
     if APPLY_TERRAIN_FLATTENING is None: APPLY_TERRAIN_FLATTENING = True       
     if APPLY_SPECKLE_FILTERING is None: APPLY_SPECKLE_FILTERING = True         
     if POLARIZATION is None: POLARIZATION = 'VVVH'
+    if ORBIT is None: ORBIT = 'BOTH'
     if SPECKLE_FILTER_FRAMEWORK is None: SPECKLE_FILTER_FRAMEWORK = 'MULTI BOXCAR' 
     if SPECKLE_FILTER is None: SPECKLE_FILTER = 'GAMMA MAP' 
     if SPECKLE_FILTER_KERNEL_SIZE is None: SPECKLE_FILTER_KERNEL_SIZE = 7
@@ -65,6 +67,10 @@ def s1_preproc(params):
     pol_required = ['VV', 'VH', 'VVVH']
     if (POLARIZATION not in pol_required):
         raise ValueError("ERROR!!! Parameter POLARIZATION not correctly defined")
+        
+    orbit_required = ['ASCENDING', 'DESCENDING', 'BOTH']
+    if (ORBIT not in orbit_required):
+        raise ValueError("ERROR!!! Parameter ORBIT not correctly defined")
 
     model_required = ['DIRECT', 'VOLUME']
     if (TERRAIN_FLATTENING_MODEL not in model_required):
@@ -97,12 +103,14 @@ def s1_preproc(params):
     ###########################################
     
     s1 = ee.ImageCollection('COPERNICUS/S1_GRD_FLOAT') \
-                .filter(ee.Filter.listContains('transmitterReceiverPolarisation', 'VH')) \
-                .filter(ee.Filter.eq('orbitProperties_pass', ORBIT)) \
                 .filter(ee.Filter.eq('instrumentMode', 'IW')) \
                 .filter(ee.Filter.eq('resolution_meters', 10)) \
                 .filterDate(START_DATE, STOP_DATE) \
                 .filterBounds(ROI)
+    
+    
+    if (ORBIT !== 'BOTH'):
+        s1 = s1.filter(ee.Filter.eq('orbitProperties_pass', ORBIT))}
     
     #########################
     # 2. SELECT POLARIZATION
