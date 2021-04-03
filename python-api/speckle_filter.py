@@ -215,7 +215,7 @@ def leesigma(image,KERNEL_SIZE):
     It is implemented as described in, Lee, J.-S. Wen, J.-H. Ainsworth, T.L. Chen, K.-S. Chen, A.J. Improved sigma filter for speckle filtering of SAR imagery. 
     IEEE Trans. Geosci. Remote Sens. 2009, 47, 202–213. """
     #parameters
-    Tk = ee.Image(7) #number of bright pixels in a 3x3 window
+    Tk = ee.Image.constant(7) #number of bright pixels in a 3x3 window
     sigma = 0.9
     enl = 4
     target_kernel = 3
@@ -223,7 +223,7 @@ def leesigma(image,KERNEL_SIZE):
   
     #compute the 98 percentile intensity 
     z98 = ee.Dictionary(image.select(bandNames).reduceRegion(
-                reducer= ee.Reducer.percentile([98], None,255,0.001,1e6),
+                reducer= ee.Reducer.percentile([98]),
                 geometry= image.geometry(),
                 scale=10,
                 maxPixels=1e13
@@ -231,8 +231,8 @@ def leesigma(image,KERNEL_SIZE):
   
 
     #select the strong scatterers to retain
-    aboveThresh = image.select(bandNames).gte(z98)
-    K = aboveThresh.reduceNeighborhood(ee.Reducer.sum()
+    brightPixel = image.select(bandNames).gte(z98)
+    K = brightPixel.reduceNeighborhood(ee.Reducer.countDistinctNonNull()
             ,ee.Kernel.square(target_kernel/2)) 
     retainPixel = K.gte(Tk)
   
@@ -263,18 +263,15 @@ def leesigma(image,KERNEL_SIZE):
   
     #step 3: compute the sigma range
     #Lookup table (J.S.Lee et al 2009) for range and eta values for intensity (only 4 look is shown here)
-    sigmaLookup = ee.Dictionary({  
-            4: ee.Dictionary({
-            0.5: ee.Dictionary({'I1': 0.694,'I2': 1.385,'eta': 0.1921}),
-            0.6: ee.Dictionary({'I1': 0.630,'I2': 1.495,'eta': 0.2348}),
-            0.7: ee.Dictionary({'I1': 0.560,'I2': 1.627,'eta': 0.2825}),
-            0.8: ee.Dictionary({'I1': 0.480,'I2': 1.804,'eta': 0.3354}),
-            0.9: ee.Dictionary({'I1': 0.378,'I2': 2.094,'eta': 0.3991}),
-            0.95: ee.Dictionary({'I1': 0.302,'I2': 2.360,'eta': 0.4391})})})
+    LUT = ee.Dictionary({0.5: ee.Dictionary({'I1': 0.694,'I2': 1.385,'eta': 0.1921}),
+                                 0.6: ee.Dictionary({'I1': 0.630,'I2': 1.495,'eta': 0.2348}),
+                                 0.7: ee.Dictionary({'I1': 0.560,'I2': 1.627,'eta': 0.2825}),
+                                 0.8: ee.Dictionary({'I1': 0.480,'I2': 1.804,'eta': 0.3354}),
+                                 0.9: ee.Dictionary({'I1': 0.378,'I2': 2.094,'eta': 0.3991}),
+                                 0.95: ee.Dictionary({'I1': 0.302,'I2': 2.360,'eta': 0.4391})});
   
     #extract data from lookup
-    looksDict = ee.Dictionary(sigmaLookup.get(str(enl)))
-    sigmaImage = ee.Dictionary(looksDict.get(str(sigma))).toImage()
+    sigmaImage = ee.Dictionary(LUT.get(str(sigma))).toImage()
     I1 = sigmaImage.select('I1')
     I2 = sigmaImage.select('I2')
     #new speckle sigma
