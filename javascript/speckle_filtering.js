@@ -234,24 +234,23 @@ IEEE Trans. Geosci. Remote Sens. 2009, 47, 202–213. */
 
 var leesigma = function(image,KERNEL_SIZE) {
         //parameters
-        var Tk = ee.Image(7); //number of bright pixels in a 3x3 window
-        var sigma = '0.9';
-        var enl = '4';
+        var Tk = ee.Image.constant(7); //number of bright pixels in a 3x3 window
+        var sigma = 0.9;
+        var enl = 4;
         var target_kernel = 3;
         var bandNames = image.bandNames().remove('angle');
   
         //compute the 98 percentile intensity 
-        var z98 = ee.Dictionary(image.select(bandNames).reduceRegion({
-                reducer: ee.Reducer.percentile([98],null,255,0.001,1e6),
+        var z98 = image.select(bandNames).reduceRegion({
+                reducer: ee.Reducer.percentile([98]),
                 geometry: image.geometry(),
                 scale:10,
                 maxPixels:1e13
-            })).toImage();
-  
-  
+            }).toImage();
+            
         //select the strong scatterers to retain
-        var aboveThresh = image.select(bandNames).gte(z98);
-        var K = aboveThresh.reduceNeighborhood({reducer: ee.Reducer.sum()
+        var brightPixel = image.select(bandNames).gte(z98);
+        var K = brightPixel.reduceNeighborhood({reducer: ee.Reducer.countDistinctNonNull()
                             ,kernel: ee.Kernel.square((target_kernel/2) ,'pixels')}); 
         var retainPixel = K.gte(Tk);
   
@@ -278,20 +277,15 @@ var leesigma = function(image,KERNEL_SIZE) {
   
         //step 3: compute the sigma range
         // Lookup table (J.S.Lee et al 2009) for range and eta values for intensity (only 4 look is shown here)
-        var sigmaLookup = ee.Dictionary({    
-            4: ee.Dictionary({
-                0.5: ee.Dictionary({'I1': 0.694,'I2': 1.385,'eta': 0.1921}),
-                0.6: ee.Dictionary({'I1': 0.630,'I2': 1.495,'eta': 0.2348}),
-                0.7: ee.Dictionary({'I1': 0.560,'I2': 1.627,'eta': 0.2825}),
-                0.8: ee.Dictionary({'I1': 0.480,'I2': 1.804,'eta': 0.3354}),
-                0.9: ee.Dictionary({'I1': 0.378,'I2': 2.094,'eta': 0.3991}),
-                0.95: ee.Dictionary({'I1': 0.302,'I2': 2.360,'eta': 0.4391})
-            })
-        });
+        var LUT = ee.Dictionary({0.5: ee.Dictionary({'I1': 0.694,'I2': 1.385,'eta': 0.1921}),
+                                 0.6: ee.Dictionary({'I1': 0.630,'I2': 1.495,'eta': 0.2348}),
+                                 0.7: ee.Dictionary({'I1': 0.560,'I2': 1.627,'eta': 0.2825}),
+                                 0.8: ee.Dictionary({'I1': 0.480,'I2': 1.804,'eta': 0.3354}),
+                                 0.9: ee.Dictionary({'I1': 0.378,'I2': 2.094,'eta': 0.3991}),
+                                 0.95: ee.Dictionary({'I1': 0.302,'I2': 2.360,'eta': 0.4391})});
   
         // extract data from lookup
-        var looksDict = ee.Dictionary(sigmaLookup.get(ee.String(enl)));
-        var sigmaImage = ee.Dictionary(looksDict.get(ee.String(sigma))).toImage();
+        var sigmaImage = ee.Dictionary(LUT.get(String(sigma))).toImage();
         var I1 = sigmaImage.select('I1');
         var I2 = sigmaImage.select('I2');
         //new speckle sigma
