@@ -4,6 +4,7 @@
 Version: v1.0
 Date: 2021-03-12
 Authors: Mullissa A., Vollrath A., , Braun, C.,  Reiche J., Slagter B., Balling J. , Gou Y.
+Description: A wrapper function to derive the Sentinel-1 ARD
 """
 
 import ee
