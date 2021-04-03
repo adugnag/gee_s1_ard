@@ -4,9 +4,9 @@ Date: 2021-03-10
 Authors: Mullissa A., Vollrath A.,  Reiche J., Slagter B., Balling J. , Gou Y., Braun, C.
 Description: This script creates an analysis ready S1 image collection.
 
-    Args:
+    params:
         geometry: The region to include imagery within. (ee.Geometry); The user has to interactively draw a bounding box within the map window.
-        ORBITS:  The orbits to include. (string: ASCENDING or DESCENDING)
+        ORBITS:  The orbits to include. (string: ASCENDING, DESCENDING OR BOTH)
         START_DATE: The earliest date to include images for (inclusive).
         END_DATE: The latest date to include images for (exclusive).
         POLARIZATION: The Sentinel-1 image polarization to select for processing.
@@ -42,6 +42,7 @@ Description: This script creates an analysis ready S1 image collection.
             VH;
             angle.
 **/
+
 var wrapper = require('users/adugnagirma/s1_ard_master:wrapper');
 var helper = require('users/adugnagirma/s1_ard_master:utilities');
 
@@ -49,66 +50,55 @@ var helper = require('users/adugnagirma/s1_ard_master:utilities');
 //---------------------------------------------------------------------------//
 // DEFINE PARAMETERS
 //---------------------------------------------------------------------------//
-//Data Selection
-var START_DATE = "2019-01-01";
-var STOP_DATE = "2019-03-01";
-var POLARIZATION = 'VVVH';
-var ORBIT = 'DESCENDING'
-var DEM = ee.Image('USGS/SRTMGL1_003');
-//Additional Border noise correction
-var APPLY_BORDER_NOISE_CORRECTION = false
-//Terrain Flattening (Vollrath et al. 2020)
-var APPLY_TERRAIN_FLATTENING = true
-var TERRAIN_FLATTENING_MODEL = 'VOLUME'
-var TERRAIN_FLATTENING_ADDITIONAL_LAYOVER_SHADOW_BUFFER = 0
-//Speckle filter
-var APPLY_SPECKLE_FILTERING = true
-var SPECKLE_FILTER_FRAMEWORK = 'MULTI'
-var SPECKLE_FILTER = 'BOXCAR'
-var SPECKLE_FILTER_KERNEL_SIZE = 7
-var NR_OF_IMAGES = 10;
-//Output
-var FORMAT = 'DB'
-var CLIP_TO_ROI = false
-var SAVE_ASSETS = false
 
-Map.centerObject(geometry, 13);
+var params = {//1. Data Selection
+              START_DATE: "2019-01-01",
+              STOP_DATE: "2019-01-02",
+              POLARIZATION:'VVVH',
+              ORBIT : 'BOTH',
+              DEM: ee.Image('USGS/SRTMGL1_003'),
+              geometry: ee.Geometry.Polygon([[[104.80, 11.61],[104.80, 11.36],[105.16, 11.36],[105.16, 11.61]]], null, false),
+              //2. Additional Border noise correction
+              APPLY_BORDER_NOISE_CORRECTION: false,
+              //3.Speckle filter
+              APPLY_SPECKLE_FILTERING: true,
+              SPECKLE_FILTER_FRAMEWORK: 'MULTI',
+              SPECKLE_FILTER: 'LEE SIGMA',
+              SPECKLE_FILTER_KERNEL_SIZE: 9,
+              NR_OF_IMAGES: 10,
+              //4. Radiometric terrain normalization
+              APPLY_TERRAIN_FLATTENING: true,
+              TERRAIN_FLATTENING_MODEL: 'VOLUME',
+              TERRAIN_FLATTENING_ADDITIONAL_LAYOVER_SHADOW_BUFFER: 0,
+              //5. Output
+              FORMAT : 'DB',
+              CLIP_TO_ROI: false,
+              SAVE_ASSETS: false
+}
 
 //---------------------------------------------------------------------------//
 // DO THE JOB
 //---------------------------------------------------------------------------//
 // Select S1 GRD ImageCollection
 var s1 = ee.ImageCollection('COPERNICUS/S1_GRD_FLOAT')
-  .filter(ee.Filter.eq('orbitProperties_pass', ORBIT))
-  .filter(ee.Filter.eq('instrumentMode', 'IW'))
-  .filter(ee.Filter.eq('resolution_meters', 10))
-  .filterDate(START_DATE, STOP_DATE)
-  .filterBounds(geometry);
+      .filter(ee.Filter.eq('instrumentMode', 'IW'))
+      .filter(ee.Filter.eq('resolution_meters', 10))
+      .filterDate(params.START_DATE, params.STOP_DATE)
+      .filterBounds(params.geometry);
 
 //Preprocess the S1 collection
-var s1_preprocces = wrapper.s1_preproc(s1,
-                            APPLY_BORDER_NOISE_CORRECTION, 
-                            APPLY_TERRAIN_FLATTENING,
-                            APPLY_SPECKLE_FILTERING,
-                            SPECKLE_FILTER_FRAMEWORK,
-                            POLARIZATION,
-                            SPECKLE_FILTER,
-                            SPECKLE_FILTER_KERNEL_SIZE,
-                            NR_OF_IMAGES,
-                            TERRAIN_FLATTENING_MODEL,
-                            DEM,
-                            TERRAIN_FLATTENING_ADDITIONAL_LAYOVER_SHADOW_BUFFER, 
-                            FORMAT
-                            );
-                          
-if (CLIP_TO_ROI) {s1_preprocces = s1_preprocces.map(function(image) {
-              return image.clip(geometry)})
-}
+var s1_preprocces = wrapper.s1_preproc(s1, params);
+
+
+
+//---------------------------------------------------------------------------//
+// VISUALIZE
+//---------------------------------------------------------------------------//
 
 //Visulaization of the first image in the collection in RGB for VV, VH, images
 var visparam = {}
-if (POLARIZATION=='VVVH'){
-     if (FORMAT=='DB'){
+if (params.POLARIZATION=='VVVH'){
+     if (params.FORMAT=='DB'){
     var s1_preprocces_view = s1_preprocces.map(helper.add_ratio_lin).map(helper.lin_to_db2);
     var s1_view = s1.map(helper.add_ratio_lin).map(helper.lin_to_db2);
     visparam = {bands:['VV','VH','VVVH_ratio'],min: [-20, -25, 1],max: [0, -5, 15]}
@@ -119,26 +109,35 @@ if (POLARIZATION=='VVVH'){
     visparam = {bands:['VV','VH','VVVH_ratio'], min: [0, 0, 0],max: [0.5, 0.5, 20]}
     }
 }
-if (POLARIZATION !='VVVH') {
-    if (FORMAT=='DB') {
+if (params.POLARIZATION !='VVVH') {
+    if (params.FORMAT=='DB') {
     s1_preprocces_view = s1_preprocces.map(helper.lin_to_db);
     s1_view = s1.map(helper.lin_to_db);
-    visparam = {bands:[POLARIZATION],min: -25,max: 0}   
+    visparam = {bands:[params.POLARIZATION],min: -25,max: 0}   
     }
     else {
     s1_preprocces_view = s1_preprocces;
     s1_view = s1;
-    visparam = {bands:[POLARIZATION],min: 0,max: 0.2}
+    visparam = {bands:[params.POLARIZATION],min: 0,max: 0.2}
     }
 }
 
+Map.centerObject(params.geometry, 13);
+
+Map.addLayer(s1_view.first(), visparam, 'First image in the input S1 collection', true);
+Map.addLayer(s1_preprocces_view.first(), visparam, 'First image in the processed S1 collection', true);
+
+//---------------------------------------------------------------------------//
+// EXPORT
+//---------------------------------------------------------------------------//
+
 //Convert format for export
-if (FORMAT=='DB'){
+if (params.FORMAT=='DB'){
   s1_preprocces = s1_preprocces.map(helper.lin_to_db);
 }
 
 //Save processed collection to asset
-if(SAVE_ASSETS) {
+if(params.SAVE_ASSETS) {
 helper.Download.ImageCollection.toAsset(s1_preprocces, '', 
                {scale: 10, 
                region: s1_preprocces.geometry(),
