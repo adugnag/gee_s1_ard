@@ -5,6 +5,7 @@
 Version: v1.0
 Date: 2021-03-12
 Authors: Mullissa A., Vollrath A.,  Reiche J., Slagter B., Balling J. , Gou Y., Braun, C.
+Description: A collection of functions to perform mono-temporal and multi-temporal speckle filtering
 """
 import ee
 import math
