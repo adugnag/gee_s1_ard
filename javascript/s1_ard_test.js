@@ -28,7 +28,7 @@ Description: This script creates an analysis ready S1 image collection.
         SPECKLE_FILTER_KERNEL_SIZE: is the size of the filter spatial window applied in speckle filtering. must be a positive integer.
         NR_OF_IMAGES: is the number of multi-temporal images to use in the multi-temporal filter framework.
         APPLY_BORDER_NOISE_CORRECTION: (Optional) true or false options to apply additional Border noise correction:
-        TERRAIN_FLATTENING - (Optional) true or false option to apply Terrain correction based on Vollrath et al. 2020 and Hoekman and Reiche 2015 is applied. 
+        TERRAIN_FLATTENING - (Optional) true or false option to apply Terrain correction based on Vollrath et al. 2020 and Hoekman and Reiche 2015. 
         TERRAIN_FLATTENING_MODEL - which model to use for radiometric terrain flattening (DIRECT, or VOLUME)
         DEM - which digital elevation model (DEM) to use (as EE asset)
         TERRAIN_FLATTENING_ADDITIONAL_LAYOVER_SHADOW_BUFFER - buffer parameter for layover/shadow mask in meters
