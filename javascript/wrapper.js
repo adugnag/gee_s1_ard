@@ -86,7 +86,7 @@ exports.s1_preproc = function(s1, params) {
   
   //Clip to roi
   if (params.CLIP_TO_ROI) {s1 = s1.map(function(image) {
-              return image.clip(geometry)})}
+              return image.clip(params.geometry)})}
   
   /************************************  
    * 2. ADDITIONAL BORDER NOISE REMOVAL  
