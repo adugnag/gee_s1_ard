@@ -30,11 +30,11 @@ Description: This script creates an analysis ready S1 image collection.
         APPLY_BORDER_NOISE_CORRECTION: (Optional) true or false options to apply additional Border noise correction:
         TERRAIN_FLATTENING - (Optional) true or false option to apply Terrain correction based on Vollrath et al. 2020 and Hoekman and Reiche 2015. 
         TERRAIN_FLATTENING_MODEL - which model to use for radiometric terrain flattening (DIRECT, or VOLUME)
-        DEM - which digital elevation model (DEM) to use (as EE asset)
-        TERRAIN_FLATTENING_ADDITIONAL_LAYOVER_SHADOW_BUFFER - buffer parameter for layover/shadow mask in meters
+        DEM - digital elevation model (DEM) to use (as EE asset)
+        TERRAIN_FLATTENING_ADDITIONAL_LAYOVER_SHADOW_BUFFER - buffer parameter for passive layover/shadow mask in meters
         FORMAT - the output format for the processed collection. this can be 'LINEAR' or 'DB'.
         CLIP_TO_ROI - (Optional) Resizes the processed images to the region of interest.
-        SAVE_ASSETS - (Optional) Exports the processed collection to an asset.
+        SAVE_ASSETS - (Optional) Exports the processed collection to an EE asset.
     Returns:
         An ee.ImageCollection with an analysis ready Sentinel 1 imagery with the following bands:
             VV;
