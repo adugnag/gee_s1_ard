@@ -5,7 +5,7 @@ Authors: Mullissa A., Vollrath A.,  Reiche J., Slagter B., Balling J. , Gou Y., 
 Description: This script creates an analysis ready S1 image collection.
 
     params:
-        geometry: The region to include imagery within. (ee.Geometry); The user has to interactively draw a bounding box within the map window.
+        geometry: The region to include imagery within. (ee.Geometry); The user has to interactively draw a bounding box within the map window or explicitly give coordinates in params.
         ORBITS:  The orbits to include. (string: ASCENDING, DESCENDING OR BOTH)
         START_DATE: The earliest date to include images for (inclusive).
         END_DATE: The latest date to include images for (exclusive).
