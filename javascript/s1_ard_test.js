@@ -14,7 +14,7 @@ Description: This script creates an analysis ready S1 image collection.
             'VH' - selects the VH polarization.
             "VVVH' - selects both the VV and VH polarization for processing.
         APPLY_SPECKLE_FILTERING: true or false options to apply speckle filter
-        SPECKLE_FILTER: (Optional)   Type of speckle filtering to apply. This is done by passing the argument 'MONO' or 'MULTI' for monotemporal and multitemporal respecively.
+        SPECKLE_FILTER: (Optional)    Type of speckle filter to apply.
             'BOXCAR' - implements a boxcar filter on each individual image in the collection
             'LEE' - implements a Lee filter on each individual image in the collection based on (J.S. Lee et al. 1980)
             'GAMMA MAP' - implements a Gamma maximum a-posterior speckle filter on each individual image in the collection based on (Lopez et al. 1990
