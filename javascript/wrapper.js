@@ -56,9 +56,7 @@ exports.s1_preproc = function(s1, params) {
   } 
   
   var sfilter_required = ['BOXCAR', 'LEE', 'GAMMA MAP'
-              , 'REFINED LEE', 'LEE SIGMA', 'BOXCAR', 'LEE'
-              , 'GAMMA MAP', 'REFINED LEE'
-              , 'LEE SIGMA']
+              , 'REFINED LEE', 'LEE SIGMA']
   if (notContains(sfilter_required, params.SPECKLE_FILTER)) {
        throw new Error("Parameter SPECKLE_FILTER not correctly defined")
   } 
