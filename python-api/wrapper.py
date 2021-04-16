@@ -148,6 +148,12 @@ def s1_preproc(params):
         s1 = s1.select(['VH', 'angle'])
     elif (POLARIZATION == 'VVVH'):
         s1 = s1.select(['VV', 'VH', 'angle'])
+    elif (POLARIZATION == 'HH'):
+        s1 = s1.select(['HH', 'angle'])
+    elif (POLARIZATION == 'HV'):
+        s1 = s1.select(['HV', 'angle'])
+    elif (POLARIZATION == 'HHHV'):
+        s1 = s1.select(['HH', 'HV', 'angle'])
 
     # clip image to roi
     if (CLIP_TO_ROI):
