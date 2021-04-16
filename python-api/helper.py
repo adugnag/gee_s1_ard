@@ -28,7 +28,7 @@ def lin_to_db(image):
 
     """
     bandNames = image.bandNames().remove('angle')
-    db = ee.Image.constant(10).multiply(image.log10()).rename(bandNames)
+    db = ee.Image.constant(10).multiply(image.select(bandNames).log10())
     return image.addBands(db, None, True)
 
 def lin_to_db2(image):
