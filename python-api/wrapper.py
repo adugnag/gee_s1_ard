@@ -185,7 +185,6 @@ def s1_preproc(params):
         s1_1 = trf.slope_correction(s1_1 
                                     ,TERRAIN_FLATTENING_MODEL
                                         ,DEM
-                                            ,POLARIZATION
                                                 ,TERRAIN_FLATTENING_ADDITIONAL_LAYOVER_SHADOW_BUFFER)
 
     ########################
