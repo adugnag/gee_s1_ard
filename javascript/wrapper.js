@@ -77,10 +77,7 @@ exports.s1_preproc = function(s1, params) {
   //select polarization
   if (params.POLARIZATION=='VV') { s1 = s1.select(['VV','angle'])}
   else if (params.POLARIZATION=='VH') {s1 = s1.select(['VH','angle'])}
-  else if (params.POLARIZATION=='HH') {s1 = s1.select(['HH','angle'])}
-  else if (params.POLARIZATION=='HV') {s1 = s1.select(['HV','angle'])}
   else if (params.POLARIZATION=='VVVH') {s1 = s1.select(['VV', 'VH', 'angle'])}
-  else if (params.POLARIZATION=='HHHV') {s1 = s1.select(['HH', 'HV', 'angle'])}
   
   print('Number of images in collection: ', s1.size());
   
