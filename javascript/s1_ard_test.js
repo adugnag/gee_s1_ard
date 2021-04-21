@@ -108,7 +108,7 @@ if (params.POLARIZATION=='VVVH'){
     visparam = {bands:['VV','VH','VVVH_ratio'], min: [0, 0, 0],max: [0.5, 0.5, 20]}
     }
 }
-if (params.POLARIZATION !='VVVH') {
+else {
     if (params.FORMAT=='DB') {
     s1_preprocces_view = s1_preprocces.map(helper.lin_to_db);
     s1_view = s1.map(helper.lin_to_db);
