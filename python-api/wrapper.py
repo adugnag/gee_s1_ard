@@ -110,7 +110,7 @@ def s1_preproc(params):
         raise ValueError("ERROR!!! FORMAT not correctly defined")
 
     frame_needed = ['MONO', 'MULTI']
-    if (SPECKLE_FILTER_FRAMEWORK not in frame_needed.keys):
+    if (SPECKLE_FILTER_FRAMEWORK not in frame_needed):
         raise ValueError("ERROR!!! SPECKLE_FILTER_FRAMEWORK not correctly defined")
 
     format_sfilter = ['MONO BOXCAR', 'MONO LEE', 'MONO GAMMA MAP'
