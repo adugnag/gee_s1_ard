@@ -97,9 +97,8 @@ def leefilter(image, KERNEL_SIZE):
 def gammamap(image, KERNEL_SIZE): 
     """
     Gamma Maximum a-posterior Filter applied to one image. It is implemented as described in 
-    Lopes A., Nezry, E., Touzi, R., and Laur, H., 1990.  
-    Maximum A Posteriori Speckle Filtering and First Order texture Models in SAR Images.  
-    International  Geoscience  and  Remote  Sensing  Symposium (IGARSS).
+    A. Lopes, R. Touzi, and E. Nezry, “Adaptative speckle filters and scene heterogeneity,
+    IEEE Trans. Geosci. Remote Sensing, vol. 28, pp. 992–1000, Nov. 1990
 
     Parameters
     ----------
