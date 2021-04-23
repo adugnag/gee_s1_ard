@@ -1,7 +1,8 @@
 /*
-Version: v1.0
-Date: 2021-03-12
-Authors: Mullissa A., Vollrath A.,  Reiche J., Slagter B., Balling J. , Gou Y., Braun, C.
+File: s1_ard_master/wrapper.js
+Version: v1.2
+Date: 2021-04-01
+Authors: Mullissa A., Vollrath A., Gorelick N.,  Reiche J., Slagter B., Balling J. , Gou Y., Braun, C.
 */
 //****************************
 // ALL PREPROCESSING
@@ -11,9 +12,9 @@ var speckle_filter = require('users/adugnagirma/s1_ard_master:speckle_filter');
 var terrain_flattening = require('users/adugnagirma/s1_ard_master:terrain_flattening');
 var border_noise_correction = require('users/adugnagirma/s1_ard_master:border_noise_correction');
 
-exports.s1_preproc = function(s1, params) {
+exports.s1_preproc = function(params) {
   
-  /************************  
+ /************************  
    * 0. CHECK PARAMETERS  
   ************************/
   if (params.ORBIT === undefined) params.ORBIT = 'BOTH';
@@ -22,6 +23,7 @@ exports.s1_preproc = function(s1, params) {
   if (params.TERRAIN_FLATTENING_MODEL === undefined) params.TERRAIN_FLATTENING_MODEL = 'VOLUME';
   if (params.TERRAIN_FLATTENING_ADDITIONAL_LAYOVER_SHADOW_BUFFER === undefined) params.TERRAIN_FLATTENING_ADDITIONAL_LAYOVER_SHADOW_BUFFER = 0;
   if (params.FORMAT === undefined) params.FORMAT = 'DB';
+  if (params.DEM === undefined) params.DEM = ee.Image('USGS/SRTMGL1_003');
   if (params.POLARIZATION === undefined) params.POLARIZATION = 'VVVH';
   if (params.APPLY_BORDER_NOISE_CORRECTION === undefined) params.APPLY_BORDER_NOISE_CORRECTION = true;
   if (params.APPLY_TERRAIN_FLATTENING===undefined) params.APPLY_TERRAIN_FLATTTENING = true;
@@ -35,7 +37,7 @@ exports.s1_preproc = function(s1, params) {
        throw new Error("Parameter ORBIT not correctly defined")
   } 
   
-  var pol_required = ['VV', 'VH', 'HH', 'HV', 'VVVH', 'HHHV']
+  var pol_required = ['VV', 'VH', 'VVVH']
   if (notContains(pol_required, params.POLARIZATION)) {
        throw new Error("Parameter POLARIZATION not correctly defined")
   } 
@@ -70,9 +72,16 @@ exports.s1_preproc = function(s1, params) {
   /************************  
    * 1. SELECT DATASET
   ************************/ 
-
+  
+  // Select S1 GRD ImageCollection
+var s1 = ee.ImageCollection('COPERNICUS/S1_GRD_FLOAT')
+      .filter(ee.Filter.eq('instrumentMode', 'IW'))
+      .filter(ee.Filter.eq('resolution_meters', 10))
+      .filterDate(params.START_DATE, params.STOP_DATE)
+      .filterBounds(params.geometry);
+  
   //select orbit
-  if (params.ORBIT !== 'BOTH'){var s1 = s1.filter(ee.Filter.eq('orbitProperties_pass', params.ORBIT))}
+  if (params.ORBIT !== 'BOTH'){s1 = s1.filter(ee.Filter.eq('orbitProperties_pass', params.ORBIT))}
   
   //select polarization
   if (params.POLARIZATION=='VV') { s1 = s1.select(['VV','angle'])}
@@ -81,9 +90,6 @@ exports.s1_preproc = function(s1, params) {
   
   print('Number of images in collection: ', s1.size());
   
-  //Clip to roi
-  if (params.CLIP_TO_ROI) {s1 = s1.map(function(image) {
-              return image.clip(params.geometry)})}
   
   /************************************  
    * 2. ADDITIONAL BORDER NOISE REMOVAL  
@@ -115,6 +121,5 @@ exports.s1_preproc = function(s1, params) {
       print('TERRAIN FLATTENING COMPLETED')
   }
   
-  return s1_1;
+  return [s1, s1_1]
 };
-
