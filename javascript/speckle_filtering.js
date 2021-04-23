@@ -1,7 +1,7 @@
 /* File: speckle_filter.js
 Version: v1.1
 Date: 2021-03-11
-Authors: Mullissa A., Vollrath A.,  Reiche J., Slagter B., Balling J. , Gou Y., Braun, C.
+Authors: Mullissa A., Vollrath A., Gorelick N.,  Reiche J., Slagter B., Balling J. , Gou Y., Braun, C.
 Description: This script contains functions for implementing both monotemporal and multi-temporal speckle filters */
 
 
@@ -64,8 +64,10 @@ var leefilter = function(image,KERNEL_SIZE) {
 // GAMMA MAP filter 
 //---------------------------------------------------------------------------//
 /** Gamma Maximum a-posterior Filter applied to one image. It is implemented as described in 
-Lopes A., Nezry, E., Touzi, R., and Laur, H., 1990.  Maximum A Posteriori Speckle Filtering and First Order texture Models in SAR Images.  
-International  Geoscience  and  Remote  Sensing  Symposium (IGARSS).  */
+A. Lopes, R. Touzi, and E. Nezry, “Adaptative speckle filters and scene heterogeneity,
+IEEE Trans. Geosci. Remote Sensing, vol. 28, pp. 992–1000, Nov. 1990 
+and Lopes, A.; Nezry, E.; Touzi, R.; Laur, H.  Maximum a posteriori speckle filtering and first204order texture models in SAR images.  
+10th annual international symposium on geoscience205and remote sensing. Ieee, 1990, pp. 2409–2412. */
 
 var gammamap =  function(image,KERNEL_SIZE) { 
         var enl = 5;
@@ -105,7 +107,7 @@ var gammamap =  function(image,KERNEL_SIZE) {
         var zHat = (z.updateMask(ci.lte(cu))).rename(bandNames)
         //if cmax > ci > cu then its a textured medium ->> apply Gamma MAP filter
         rHat = (rHat.updateMask(ci.gt(cu)).updateMask(ci.lt(cmax))).rename(bandNames)
-        //ci>cmax then its strong signal ->> retain
+        //ci>=cmax then its strong signal ->> retain
         var x = image.select(bandNames).updateMask(ci.gte(cmax)).rename(bandNames)
   
         // Merge
@@ -222,8 +224,7 @@ var refinedLee = function(image) {
       .arrayFlatten([['sum']])
       .float();
   })).toBands().rename(bandNames).copyProperties(image);
-  result = image.addBands(result, null, true)
-  return result; 
+  return image.addBands(result, null, true) 
   } 
 //---------------------------------------------------------------------------//
 // Improved Lee Sigma filter 
@@ -259,7 +260,7 @@ var leesigma = function(image,KERNEL_SIZE) {
         //original noise standard deviation
         var eta = 1.0/Math.sqrt(enl);
         eta = ee.Image.constant(eta);
-        //MMSE applied to estimate the apriori mean
+        //MMSE applied to estimate the a-priori mean
         var reducers = ee.Reducer.mean().combine({
                       reducer2: ee.Reducer.variance(),
                       sharedInputs: true
@@ -294,7 +295,7 @@ var leesigma = function(image,KERNEL_SIZE) {
         I1 = I1.multiply(xTilde);
         I2 = I2.multiply(xTilde);
   
-        //step 3: apply MMSE filter for pixels in the sigma range
+        //step 3: apply the minimum mean square error (MMSE) filter for pixels in the sigma range
         // MMSE estimator
         var mask = image.select(bandNames).gte(I1).or(image.select(bandNames).lte(I2));
         var z = image.select(bandNames).updateMask(mask);
@@ -425,7 +426,7 @@ var Quegan = function(image) {
   var meanBands = bands.map(function(bandName){return ee.String(bandName).cat('_mean')});
   var ratioBands = bands.map(function(bandName){return ee.String(bandName).cat('_ratio')});
   var count_img = s1.reduce(ee.Reducer.count());
-
+  //estimate means and ratios
   var inner = function(image){
     if (SPECKLE_FILTER=='BOXCAR'){
       var _filtered = boxcar(image, KERNEL_SIZE).select(bands).rename(meanBands); }
@@ -441,7 +442,7 @@ var Quegan = function(image) {
     var _ratio = image.select(bands).divide(_filtered).rename(ratioBands); 
   return _filtered.addBands(_ratio);
   }
-
+  //perform Quegans filter
   var isum = s1.map(inner).select(ratioBands).reduce(ee.Reducer.sum());
   var filter = inner(image).select(meanBands);
   var divide = filter.divide(count_img);
