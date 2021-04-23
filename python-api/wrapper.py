@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-Version: v1.0
-Date: 2021-03-12
-Authors: Mullissa A., Vollrath A., , Braun, C.,  Reiche J., Slagter B., Balling J. , Gou Y.
+Version: v1.2
+Date: 2021-04-01
+Authors: Mullissa A., Vollrath A., Gorelick N.,  Reiche J., Slagter B., Balling J. , Gou Y., Braun, C.
 Description: A wrapper function to derive the Sentinel-1 ARD
 """
 
@@ -59,7 +59,6 @@ def s1_preproc(params):
     ORBIT = params['ORBIT']
     ROI = params['ROI']
     SAVE_ASSET = params['SAVE_ASSET']
-    CLIP_TO_ROI = params['CLIP_TO_ROI']
     ASSET_ID = params['ASSET_ID']
 
     ###########################################
@@ -148,11 +147,6 @@ def s1_preproc(params):
         s1 = s1.select(['VH', 'angle'])
     elif (POLARIZATION == 'VVVH'):
         s1 = s1.select(['VV', 'VH', 'angle'])
-
-
-    # clip image to roi
-    if (CLIP_TO_ROI):
-        s1 = s1.map(lambda image: image.clip(ROI))
 
     ###########################################
     # 2. ADDITIONAL BORDER NOISE CORRECTION
