@@ -88,37 +88,36 @@ def leefilter(image, KERNEL_SIZE):
     b = varx.divide(varz)
   
     # if b is negative set it to zero
-    new_b = b.Where(b.lt(0), 0)
+    new_b = b.where(b.lt(0), 0)
     output = oneImg.subtract(new_b).multiply(z_bar.abs()).add(new_b.multiply(image.select(bandNames)))
     output = output.rename(bandNames)
     return image.addBands(output, None, True)
 
 
-def gammamap(image, KERNEL_SIZE): 
+def gammamap(image,KERNEL_SIZE): 
+    
     """
     Gamma Maximum a-posterior Filter applied to one image. It is implemented as described in 
-    A. Lopes, R. Touzi, and E. Nezry, “Adaptative speckle filters and scene heterogeneity,
-    IEEE Trans. Geosci. Remote Sensing, vol. 28, pp. 992–1000, Nov. 1990
-
+    Lopes A., Nezry, E., Touzi, R., and Laur, H., 1990.  
+    Maximum A Posteriori Speckle Filtering and First Order texture Models in SAR Images.  
+    International  Geoscience  and  Remote  Sensing  Symposium (IGARSS).
     Parameters
     ----------
     image : ee.Image
         Image to be filtered
     KERNEL_SIZE : positive odd integer
         Neighbourhood window size
-
     Returns
     -------
     ee.Image
         Filtered Image
-
     """
     enl = 5
     bandNames = image.bandNames().remove('angle')
-    # local mean
-    reducers = ee.Reducer.mean().combine(
-                      reducer2= ee.Reducer.stdDev()
-                      ,sharedInputs= True
+    #local mean
+    reducers = ee.Reducer.mean().combine( \
+                      reducer2= ee.Reducer.stdDev(), \
+                      sharedInputs= True
                       )
     stats = image.select(bandNames).reduceNeighborhood( \
                       reducer= reducers, \
@@ -130,11 +129,11 @@ def gammamap(image, KERNEL_SIZE):
     z = stats.select(meanBand)
     sigz = stats.select(stdDevBand)
     
-    # local observed coefficient of variation
+    #local observed coefficient of variation
     ci = sigz.divide(z)
-    # noise coefficient of variation (or noise sigma)
+    #noise coefficient of variation (or noise sigma)
     cu = 1.0/math.sqrt(enl)
-    # threshold for the observed coefficient of variation
+    #threshold for the observed coefficient of variation
     cmax = math.sqrt(2.0) * cu
     cu = ee.Image.constant(cu)
     cmax = ee.Image.constant(cmax)
@@ -144,15 +143,15 @@ def gammamap(image, KERNEL_SIZE):
 
     alpha = oneImg.add(cu.pow(2)).divide(ci.pow(2).subtract(cu.pow(2)))
 
-    # Implements the Gamma MAP filter described in equation 11 in Lopez et al. 1990
-    q = image.select(bandNames).expression("z**2 * (z * alpha - enl - 1)**2 + 4 * alpha * enl * b() * z", z= z, alpha= alpha,enl= enl)
+    #Implements the Gamma MAP filter described in equation 11 in Lopez et al. 1990
+    q = image.select(bandNames).expression('z**2 * (z * alpha - enl - 1)**2 + 4 * alpha * enl * b() * z', { 'z': z,  'alpha':alpha,'enl': enl})
     rHat = z.multiply(alpha.subtract(enlImg).subtract(oneImg)).add(q.sqrt()).divide(twoImg.multiply(alpha))
   
-    # if ci <= cu then its a homogenous region ->> boxcar filter
+    #if ci <= cu then its a homogenous region ->> boxcar filter
     zHat = (z.updateMask(ci.lte(cu))).rename(bandNames)
-    # if cmax > ci > cu then its a textured medium ->> apply Gamma MAP filter
+    #if cmax > ci > cu then its a textured medium ->> apply Gamma MAP filter
     rHat = (rHat.updateMask(ci.gt(cu)).updateMask(ci.lt(cmax))).rename(bandNames)
-    # ci>cmax then its strong signal ->> retain
+    #ci>cmax then its strong signal ->> retain
     x = image.select(bandNames).updateMask(ci.gte(cmax)).rename(bandNames)  
     #Merge
     output = ee.ImageCollection([zHat,rHat,x]).sum()
@@ -273,6 +272,7 @@ def RefinedLee(image):
     result = ee.ImageCollection(bandNames.map(inner)).toBands().rename(bandNames).copyProperties(image)
     
     return image.addBands(result, None, True) 
+
 
 
 def leesigma(image,KERNEL_SIZE):
