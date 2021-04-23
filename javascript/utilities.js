@@ -20,7 +20,7 @@ exports.lin_to_db = function(image) {
   return image.addBands(db, null, true)
 };
 
-/** Convert backscatter from linear to dB. */
+/** Convert backscatter from dB to Linear. */
 exports.db_to_lin = function(image) {
   var bandNames = image.bandNames().remove('angle');
   var lin = ee.Image.constant(10).pow(image.select(bandNames).divide(10)).rename(bandNames)
