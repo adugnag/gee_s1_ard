@@ -182,22 +182,24 @@ def s1_preproc(params):
 
     if (FORMAT == 'DB'):
         s1_1 = s1_1.map(helper.lin_to_db)
-
-    if (SAVE_ASSET):
-        size = s1_1.size()
+        
+        
+    if (SAVE_ASSET == True): 
+            
+        size = s1_1.size().getInfo()
         imlist = s1_1.toList(size)
-
         for idx in range(0, size):
             img = imlist.get(idx)
             img = ee.Image(img)
-            name = img.id()
+            name = str(img.id().getInfo())
+            #name = str(idx)
             description = name
-            assetId = ASSET_ID+"/"+name
+            assetId = ASSET_ID+'/'+name
 
             task = ee.batch.Export.image.toAsset(image=img,
                                                  assetId=assetId,
                                                  description=description,
-                                                 region=img.geometry(),
+                                                 region=ROI,
                                                  scale=10,
                                                  maxPixels=1e13)
             task.start()
