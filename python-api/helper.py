@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-Version: v1.0
-Date: 2021-03-12
+Version: v1.2
+Date: 2021-02-11
 Authors: Mullissa A., Vollrath A.,  Reiche J., Slagter B., Balling J. , Gou Y., Braun, C.
 """
 
