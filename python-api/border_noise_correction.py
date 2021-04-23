@@ -1,15 +1,14 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-Version: v1.0
-Date: 2021-03-12
-Authors: Mullissa A., Vollrath A.,  Reiche J., Slagter B., Balling J. , Gou Y., Braun, C.
-Description: Function to mask out edges of images using using angle.
-    Modified from: Hird et al. 2017 Remote Sensing (supplementary material): 
-        http://www.mdpi.com/2072-4292/9/12/1315)
+Version: v1.1
+Date: 2021-03-11
+Authors: Adopted from Hird et al. 2017 Remote Sensing (supplementary material): http://www.mdpi.com/2072-4292/9/12/1315)
+Description: This script applied additional border noise correction
 """
 
 import ee
+import helper
 
 # ---------------------------------------------------------------------------//
 # Additional Border Noise Removal
@@ -72,7 +71,7 @@ def maskEdge(image):
 
     """
 
-    mask = image.select(0).unitScale(0.000316, 3).multiply(255).toByte().connectedComponents(ee.Kernel.rectangle(1,1), 100)
+    mask = image.select(0).unitScale(-25, 5).multiply(255).toByte().connectedComponents(ee.Kernel.rectangle(1,1), 100)
     return image.updateMask(mask.select(0)).set('system:time_start', image.get('system:time_start')) 
 
 
@@ -92,8 +91,10 @@ def f_mask_edges(image):
         Corrected image
 
     """
-
-    output = maskAngGT30(image)
+    
+    db_img = helper.lin_to_db(image)
+    output = maskAngGT30(db_img)
     output = maskAngLT452(output)
     output = maskEdge(output)
+    output = helper.db_to_lin(output)
     return output.set('system:time_start', image.get('system:time_start'))
