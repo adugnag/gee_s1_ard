@@ -67,7 +67,6 @@ params = {  'START_DATE': '2018-01-01',
             'SPECKLE_FILTER_KERNEL_SIZE': 7,
             'NR_OF_IMAGES':10,
             'FORMAT': 'DB',
-            'CLIP_TO_ROI': False,
             'SAVE_ASSET': False, 
             'ASSET_ID': "users/adugnagirma"
             }
