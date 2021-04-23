@@ -107,7 +107,7 @@ else {
     else {
     s1_preprocces_view = s1_preprocces;
     s1_view = s1;
-    visparam = {bands:[params.POLARIZATION],min: 0,max: 0.2}
+    visparam = {bands:[params.POLARIZATION],min: 0.0032,max: 0.31}
     }
 }
 
