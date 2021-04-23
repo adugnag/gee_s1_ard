@@ -184,7 +184,7 @@ def s1_preproc(params):
         s1_1 = s1_1.map(helper.lin_to_db)
         
         
-    if (SAVE_ASSET == True): 
+    if (SAVE_ASSET): 
             
         size = s1_1.size().getInfo()
         imlist = s1_1.toList(size)
