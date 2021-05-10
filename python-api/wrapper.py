@@ -58,6 +58,7 @@ def s1_preproc(params):
     STOP_DATE = params['STOP_DATE']
     ORBIT = params['ORBIT']
     ROI = params['ROI']
+    CLIP_TO_ROI = params['CLIP_TO_ROI']
     SAVE_ASSET = params['SAVE_ASSET']
     ASSET_ID = params['ASSET_ID']
 
@@ -112,10 +113,8 @@ def s1_preproc(params):
     if (SPECKLE_FILTER_FRAMEWORK not in frame_needed):
         raise ValueError("ERROR!!! SPECKLE_FILTER_FRAMEWORK not correctly defined")
 
-    format_sfilter = ['MONO BOXCAR', 'MONO LEE', 'MONO GAMMA MAP'
-              ,'MONO REFINED LEE', 'MONO LEE SIGMA', 'MULTI BOXCAR', 'MULTI LEE'
-              ,'MULTI GAMMA MAP', 'MULTI REFINED LEE'
-              ,'MULTI LEE SIGMA']
+    format_sfilter = ['BOXCAR', 'LEE', 'GAMMA MAP'
+              ,'REFINED LEE', 'LEE SIGMA']
     if (SPECKLE_FILTER not in format_sfilter):
         raise ValueError("ERROR!!! SPECKLE_FILTER not correctly defined")
 
@@ -184,6 +183,11 @@ def s1_preproc(params):
         s1_1 = s1_1.map(helper.lin_to_db)
         
         
+    #clip to roi
+    if (CLIP_TO_ROI):
+        s1_1 = s1_1.map(lambda image: image.clip(ROI))
+        
+        
     if (SAVE_ASSET): 
             
         size = s1_1.size().getInfo()
@@ -199,7 +203,7 @@ def s1_preproc(params):
             task = ee.batch.Export.image.toAsset(image=img,
                                                  assetId=assetId,
                                                  description=description,
-                                                 region=ROI,
+                                                 region=s1_1.geometry(),
                                                  scale=10,
                                                  maxPixels=1e13)
             task.start()
