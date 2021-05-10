@@ -32,8 +32,7 @@ POLARIZATION: The Sentinel-1 image polarization to select for processing.<br/>
             'VH' - selects the VH polarization.<br/>
             "VVVH' - selects both the VV and VH polarization for processing.<br/>
 ORBIT:  The orbits to include. (string: BOTH, ASCENDING or DESCENDING)<br/>
-GEOMETRY: The region to include imagery within.<br/>
-            The user can interactively draw a bounding box within the map window or define the edge coordinates.<br/>
+GEOMETRY: The region to include imagery within. The user can interactively draw a bounding box within the map window or define the edge coordinates.<br/>
 APPLY_BORDER_NOISE_CORRECTION: (Optional) true or false options to apply additional Border noise correction:<br/>
 APPLY_SPECKLE_FILTERING: (Optional) true or false options to apply speckle filter<br/>
 SPECKLE_FILTER: Type of speckle filtering to apply (String). If the APPLY_SPECKLE_FILTERING parameter is true then the selected speckle filter type will be used.<br/>
@@ -44,10 +43,10 @@ SPECKLE_FILTER: Type of speckle filtering to apply (String). If the APPLY_SPECKL
             'LEE SIGMA' - Applies the improved Lee sigma speckle filter on each individual image in the collection<br/>
 SPECKLE_FILTER_FRAMEWORK: is the framework where filtering is applied (String). It can be 'MONO' or 'MULTI'. In the MONO case
                           the filtering is applied to each image in the collection individually. Whereas, in the MULTI case,
-                          the Multitemporal Speckle filter is applied based on  [6] with any of the above mentioned speckle filters.
+                          the Multitemporal Speckle filter is applied with any of the above mentioned speckle filters.<br/>
 SPECKLE_FILTER_KERNEL_SIZE: is the size of the filter spatial window applied in speckle filtering. It must be a positive odd integer.<br/>
 NR_OF_IMAGES: is the number of images to use in the multi-temporal speckle filter framework.<br/>
-TERRAIN_FLATTENING : (Optional) true or false option to apply Terrain correction.
+TERRAIN_FLATTENING : (Optional) true or false option to apply Terrain correction.<br/>
 TERRAIN_FLATTENING_MODEL : model to use for radiometric terrain normalization (DIRECT, or VOLUME)<br/>
 DEM : digital elevation model (DEM) to use (as EE asset)<br/>
 TERRAIN_FLATTENING_ADDITIONAL_LAYOVER_SHADOW_BUFFER : additional buffer parameter for passive layover/shadow mask in meters<br/>
