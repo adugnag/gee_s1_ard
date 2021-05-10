@@ -6,7 +6,7 @@ Version: v1.2
 Date: 2021-03-10
 Authors: Mullissa A., Vollrath A., Braun, C., Slagter B., Balling J., Gou Y., Gorelick N.,  Reiche J.
 Description: This script creates an analysis ready S1 image collection.
-License: This code is distributed under the GNU General Public License, version 2.
+License: This code is distributed under the MIT license.
 
     Parameter:
         START_DATE: The earliest date to include images for (inclusive).
