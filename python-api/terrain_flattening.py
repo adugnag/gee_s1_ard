@@ -199,7 +199,7 @@ def slope_correction(collection, TERRAIN_FLATTENING_MODEL
         # get Layover/Shadow mask
         mask = _masking(alpha_rRad, theta_iRad, TERRAIN_FLATTENING_ADDITIONAL_LAYOVER_SHADOW_BUFFER)
         output = gamma0_flat.mask(mask).rename(bandNames).copyProperties(image)
-        output = ee.Image(output).addBands(image.select('angle'))
+        output = ee.Image(output).addBands(image.select('angle'), None, True)
 
         return output.set('system:time_start', image.get('system:time_start'))
     return collection.map(_correct)
