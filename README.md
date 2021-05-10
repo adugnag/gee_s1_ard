@@ -3,7 +3,7 @@
 ## Introduction
 The Sentinel-1 satellites provide temporally dense and high spatial resolution synthetic aperture radar (SAR) imagery. The open data policy and global coverage of Sentinel-1 make it a valuable data source for a wide range of SAR-based applications. In this regard, Google Earth Engine (GEE) is a key platform for large area analysis with preprocessed Sentinel-1 backscatter images being available within few days after acquisition.  In this implementation, we present a framework for preparing Sentinel-1 SAR backscatter Analysis-Ready-Data in Google Earth Engine that implements additional border noise correction, speckle filtering and radiometric terrain normalization. The proposed framework can be used to generate Sentinel-1 Analysis-Ready-Data suitable for a wide range of land and inland water applications. The ARD preparation framework is implemented in Google Earth Engine JavaScript and Python API's.
 
-This framework is intended for students and researchers, who are not experts in microwave remote sensing. It may also be useful to microwaave remote sensing experts who are experienced in GEE to use this framework as afoundation for advanced implementations.
+This framework is intended for students and researchers, who are not experts in microwave remote sensing. It is intended to provide flexibility for a wide variety of large area land and inland water monitoring applications.
 
 ## Features
 This framework consists of three processing modules.
