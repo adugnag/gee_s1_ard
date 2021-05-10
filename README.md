@@ -56,7 +56,7 @@ The processing returns an ee.ImageCollection with an analysis ready Sentinel 1 i
 
 ## Dependencies
 The JavaScript code runs in the GEE code editor with out installing additional packages. However, the python code requires <br/>
- [GEE](https://github.com/google/earthengine-api)
+ [Google Earth Engine](https://github.com/google/earthengine-api)
 
 ## References
 If you find this implementation useful please cite our work as
