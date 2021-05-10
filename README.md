@@ -21,7 +21,7 @@ This framework consists of three processing modules.
 
 ## Usage
 The Following parameters should be filled as discussed below.
->START_DATE: The earliest date to include images for (inclusive).
+<p>START_DATE: The earliest date to include images for (inclusive).</p>
 END_DATE: The latest date to include images for (exclusive).
 POLARIZATION: The Sentinel-1 image polarization to select for processing.
             'VV' - selects the VV polarization.
