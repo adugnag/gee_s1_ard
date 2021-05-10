@@ -52,12 +52,11 @@ CLIP_TO_ROI: (Optional) Clip the processed image to the region of interest.<br/>
 SAVE_ASSETS : (Optional) Exports the processed collection to an asset.<br/>
 ASSET_ID : (Optional) The user id path to save the assets.<br/>
         
-Returns:
-        An ee.ImageCollection with an analysis ready Sentinel 1 imagery with the specified polarization images and angle band.
+The processing returns an ee.ImageCollection with an analysis ready Sentinel 1 imagery with the specified polarization images and angle band.
 
 ## Dependencies
-The JavaScript code runs in the GEE code editor with out installing additional packages. However, the python code requires 
-https://github.com/google/earthengine-api
+The JavaScript code runs in the GEE code editor with out installing additional packages. However, the python code requires <br/>
+ [GEE](https://github.com/google/earthengine-api)
 
 ## References
 If you find this implementation useful please cite our work as
