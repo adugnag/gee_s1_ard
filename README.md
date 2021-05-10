@@ -5,6 +5,8 @@ The Sentinel-1 satellites provide temporally dense and high spatial resolution s
 
 This framework is intended for students and researchers, who are not experts in microwave remote sensing. It is intended to provide flexibility for a wide variety of large area land and inland water monitoring applications.
 
+![flowchart3](https://user-images.githubusercontent.com/48068921/117692979-d840e900-b1bd-11eb-8dd4-a1d552071362.png)
+
 ## Features
 This framework consists of three processing modules.
 1. Addtional Border noise correction
@@ -53,6 +55,8 @@ SAVE_ASSETS : (Optional) Exports the processed collection to an asset.<br/>
 ASSET_ID : (Optional) The user id path to save the assets.<br/>
         
 The processing returns an ee.ImageCollection with an analysis ready Sentinel 1 imagery with the specified polarization images and angle band.
+
+
 
 ## Dependencies
 The JavaScript code runs in the GEE code editor with out installing additional packages. However, the python code requires <br/>
