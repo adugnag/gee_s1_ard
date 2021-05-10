@@ -56,7 +56,7 @@ ASSET_ID : (Optional) The user id path to save the assets.<br/>
         
 The processing returns an ee.ImageCollection with an analysis ready Sentinel 1 imagery with the specified polarization images and angle band.
 
-
+![Processed3](https://user-images.githubusercontent.com/48068921/117693041-e42cab00-b1bd-11eb-836c-71a3da73d63d.png)
 
 ## Dependencies
 The JavaScript code runs in the GEE code editor with out installing additional packages. However, the python code requires <br/>
