@@ -5,7 +5,6 @@ The Sentinel-1 satellites provide temporally dense and high spatial resolution s
 
 This framework is intended for students and researchers, who are not experts in microwave remote sensing. It is intended to provide flexibility for a wide variety of large area land and inland water monitoring applications.
 
-![flowchart3](https://user-images.githubusercontent.com/48068921/117692979-d840e900-b1bd-11eb-8dd4-a1d552071362.png)
 
 ## Features
 This framework consists of three processing modules.
@@ -20,6 +19,9 @@ This framework consists of three processing modules.
     ii. Multi-temporal speckle filters
        -Quegan and Yu
 3. Radiometric Terrain Normalization
+
+
+![flowchart3](https://user-images.githubusercontent.com/48068921/117692979-d840e900-b1bd-11eb-8dd4-a1d552071362.png)
 
 ## Usage
 The Following parameters should be filled as discussed below.
