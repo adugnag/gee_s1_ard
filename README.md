@@ -28,9 +28,9 @@ The Following parameters should be filled as discussed below.
 START_DATE: The earliest date to include images for (inclusive).<br/>
 END_DATE: The latest date to include images for (exclusive).<br/>
 POLARIZATION: The Sentinel-1 image polarization to select for processing.<br/>
-    'VV' - selects the VV polarization.<br/>
-    'VH' - selects the VH polarization.<br/>
-    'VVVH' - selects both the VV and VH polarization for processing.<br/>
+    *'VV' - selects the VV polarization.<br/>
+    *'VH' - selects the VH polarization.<br/>
+    *'VVVH' - selects both the VV and VH polarization for processing.<br/>
 ORBIT:  The orbits to include. (string: BOTH, ASCENDING or DESCENDING)<br/>
 GEOMETRY: The region to include imagery within. The user can interactively draw a bounding box within the map window or define the edge coordinates.<br/>
 APPLY_BORDER_NOISE_CORRECTION: (Optional) true or false options to apply additional Border noise correction:<br/>
