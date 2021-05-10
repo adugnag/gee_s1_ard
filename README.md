@@ -20,7 +20,7 @@ This framework consists of three processing modules.
 3. Radiometric Terrain Normalization
 
 ## Usage
-The Following parameters should be filled as discussed below.
+>The Following parameters should be filled as discussed below.
 START_DATE: The earliest date to include images for (inclusive).
 END_DATE: The latest date to include images for (exclusive).
 POLARIZATION: The Sentinel-1 image polarization to select for processing.
