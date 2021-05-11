@@ -28,6 +28,5 @@ The JavaScript code runs in the GEE code editor with out installing additional p
  [Google Earth Engine](https://github.com/google/earthengine-api)
 
 ## References
-If you find this implementation useful please cite our work as
 
 Mullissa, A., Vollrath, A., Odongo-Braun, C., Slagter, B., Balling, J., Gou, Y., Gorelick, N., Reiche, J. (2021). Sentinel-1 SAR Backscatter Analysis-Ready-Data Preparation inGoogle Earth Engine. Remote Sensing, xxx, 1-7.
