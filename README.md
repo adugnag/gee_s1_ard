@@ -9,14 +9,9 @@ This framework is intended for students and researchers, who are not experts in 
 ## Features
 This framework consists of three processing modules.
 1. Addtional Border noise correction
-2. Speckle Filtering
-    **i. Mono-temporal speckle filters
-       -Boxcar
-       -Lee
-       -Gamma MAP
-       -Refined Lee
-       -Improved Lee sigma
-    **ii. Multi-temporal speckle filters
+2. Speckle Filtering 
+    i. Mono-temporal speckle filters
+    ii. Multi-temporal speckle filters
        -Quegan and Yu
 3. Radiometric Terrain Normalization
 
