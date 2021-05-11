@@ -7,19 +7,19 @@ This framework is intended for students and researchers, who are not experts in 
 
 
 ## Features
-This framework consists of three processing modules.
+This framework generates an analysis-ready-data by applying three processing modules.
 1. Addtional Border noise correction
 2. Speckle Filtering 
     i. Mono-temporal speckle filters
     ii. Multi-temporal speckle filters
-       -Quegan and Yu
 3. Radiometric Terrain Normalization
 
 
 ![flowchart3](https://user-images.githubusercontent.com/48068921/117692979-d840e900-b1bd-11eb-8dd4-a1d552071362.png)
 
 ## Usage
-The details about parameter setting is described in the main script.
+The details about parameter setting and their associated methods is described in the main script and accompanying technical note published in MDPI Remote sensing xxxxx.
+
 
 ![Processed3](https://user-images.githubusercontent.com/48068921/117693041-e42cab00-b1bd-11eb-836c-71a3da73d63d.png)
 
