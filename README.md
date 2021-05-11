@@ -10,13 +10,13 @@ This framework is intended for students and researchers, who are not experts in 
 This framework consists of three processing modules.
 1. Addtional Border noise correction
 2. Speckle Filtering
-    i. Mono-temporal speckle filters
+    **i. Mono-temporal speckle filters
        -Boxcar
        -Lee
        -Gamma MAP
        -Refined Lee
        -Improved Lee sigma
-    ii. Multi-temporal speckle filters
+    **ii. Multi-temporal speckle filters
        -Quegan and Yu
 3. Radiometric Terrain Normalization
 
@@ -24,38 +24,7 @@ This framework consists of three processing modules.
 ![flowchart3](https://user-images.githubusercontent.com/48068921/117692979-d840e900-b1bd-11eb-8dd4-a1d552071362.png)
 
 ## Usage
-The Following parameters should be filled as discussed below.
-START_DATE: The earliest date to include images for (inclusive).<br/>
-END_DATE: The latest date to include images for (exclusive).<br/>
-POLARIZATION: The Sentinel-1 image polarization to select for processing.<br/>
-    'VV' - selects the VV polarization.<br/>
-    'VH' - selects the VH polarization.<br/>
-    'VVVH' - selects both the VV and VH polarization for processing.<br/>
-ORBIT:  The orbits to include. (string: BOTH, ASCENDING or DESCENDING)<br/>
-GEOMETRY: The region to include imagery within. The user can interactively draw a bounding box within the map window or define the edge coordinates.<br/>
-APPLY_BORDER_NOISE_CORRECTION: (Optional) true or false options to apply additional Border noise correction:<br/>
-APPLY_SPECKLE_FILTERING: (Optional) true or false options to apply speckle filter<br/>
-SPECKLE_FILTER: Type of speckle filtering to apply (String). If the APPLY_SPECKLE_FILTERING parameter is true then the selected speckle filter type will be used.<br/>
-            'BOXCAR' - Applies a boxcar filter on each individual image in the collection<br/>
-            'LEE' - Applies a Lee filter on each individual image in the collection based on <br/>
-            'GAMMA MAP' - Applies a Gamma maximum a-posterior speckle filter on each individual image in the collection <br/>
-            'REFINED LEE' - Applies the Refined Lee speckle filter on each individual image in the collection<br/>
-            'LEE SIGMA' - Applies the improved Lee sigma speckle filter on each individual image in the collection<br/>
-SPECKLE_FILTER_FRAMEWORK: is the framework where filtering is applied (String). It can be 'MONO' or 'MULTI'. In the MONO case
-                          the filtering is applied to each image in the collection individually. Whereas, in the MULTI case,
-                          the Multitemporal Speckle filter is applied with any of the above mentioned speckle filters.<br/>
-SPECKLE_FILTER_KERNEL_SIZE: is the size of the filter spatial window applied in speckle filtering. It must be a positive odd integer.<br/>
-NR_OF_IMAGES: is the number of images to use in the multi-temporal speckle filter framework.<br/>
-TERRAIN_FLATTENING : (Optional) true or false option to apply Terrain correction.<br/>
-TERRAIN_FLATTENING_MODEL : model to use for radiometric terrain normalization (DIRECT, or VOLUME)<br/>
-DEM : digital elevation model (DEM) to use (as EE asset)<br/>
-TERRAIN_FLATTENING_ADDITIONAL_LAYOVER_SHADOW_BUFFER : additional buffer parameter for passive layover/shadow mask in meters<br/>
-FORMAT : the output format for the processed collection. this can be 'LINEAR' or 'DB'.<br/>
-CLIP_TO_ROI: (Optional) Clip the processed image to the region of interest.<br/>
-SAVE_ASSETS : (Optional) Exports the processed collection to an asset.<br/>
-ASSET_ID : (Optional) The user id path to save the assets.<br/>
-        
-The processing returns an ee.ImageCollection with an analysis ready Sentinel 1 imagery with the specified polarization images and angle band.
+The details about parameter setting is described in the main script.
 
 ![Processed3](https://user-images.githubusercontent.com/48068921/117693041-e42cab00-b1bd-11eb-836c-71a3da73d63d.png)
 
