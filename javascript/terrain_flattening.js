@@ -1,3 +1,4 @@
+
 //---------------------------------------------------------------------------//
 // Terrain Flattening
 //---------------------------------------------------------------------------//
@@ -39,7 +40,7 @@ exports.slope_correction = function(collection, TERRAIN_FLATTENING_MODEL,
         // layover, where slope > radar viewing angle
         var layover = alpha_rRad.lt(theta_iRad).rename('layover');
         // shadow
-        var shadow = alpha_rRad.gt(ee.Image.constant(-1).multiply(ninetyRad.clip(theta_iRad.geometry()).subtract(theta_iRad))).rename('shadow');
+        var shadow = alpha_rRad.gt(ee.Image.constant(-1).multiply(ninetyRad.subtract(theta_iRad))).rename('shadow');
         // combine layover and shadow
         var mask = layover.and(shadow);
         // add buffer to final mask
@@ -61,12 +62,12 @@ exports.slope_correction = function(collection, TERRAIN_FLATTENING_MODEL,
         
         // the numbering follows the article chapters
         // 2.1.1 Radar geometry 
-        var theta_iRad = image.select('angle').multiply(Math.PI/180).clip(geom)
-        var phi_iRad = ee.Image.constant(heading).multiply(Math.PI/180).clip(geom)
+        var theta_iRad = image.select('angle').multiply(Math.PI/180)
+        var phi_iRad = ee.Image.constant(heading).multiply(Math.PI/180)
         
         // 2.1.2 Terrain geometry
-        var alpha_sRad = ee.Terrain.slope(DEM).select('slope').multiply(Math.PI/180).clip(geom)
-        var phi_sRad = ee.Terrain.aspect(DEM).select('aspect').multiply(Math.PI/180).clip(geom)
+        var alpha_sRad = ee.Terrain.slope(DEM).select('slope').multiply(Math.PI/180)//.reproject(proj).clip(geom)
+        var phi_sRad = ee.Terrain.aspect(DEM).select('aspect').multiply(Math.PI/180)//.reproject(proj).clip(geom)
         
         // we get the height, for export 
         var height = DEM.reproject(proj).clip(geom)
