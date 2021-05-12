@@ -3,7 +3,7 @@
 """
 Version: v1.2
 Date: 2021-02-11
-Authors: Mullissa A., Vollrath A.,  Reiche J., Slagter B., Balling J. , Gou Y., Braun, C.
+Authors: Mullissa A., Vollrath A., Braun, C., Slagter B., Balling J., Gou Y., Gorelick N.,  Reiche J.
 """
 
 import ee
