@@ -25,7 +25,7 @@ The user should adjust the script path and GEE id to their own path and id befor
 
 ![github_pic2](https://user-images.githubusercontent.com/48068921/117958586-75fdfa80-b31b-11eb-9000-d1eed1ebb675.png)
 
-RGB visualization of a dual polarized (VV and VH) Sentinel-1 SAR backscatter image ofcentral Borneo, Indonesia (Lat: -0.35, Lon: 112.15) (a) as ingested into Google Earth Engine; and (b)after applying additional boarder noise removal, a9×9 multi-temporal Gamma MAP specklefilter and radiometric terrain normalization with a volume scattering model. Here VV is in red,VH is in green and VV/VH is in blue.
+RGB visualization of a dual polarized (VV and VH) Sentinel-1 SAR backscatter image of central Borneo, Indonesia (Lat: -0.35, Lon: 112.15) (a) as ingested into Google Earth Engine; and (b) after applying additional boarder noise removal, a 9×9 multi-temporal Gamma MAP specklefilter and radiometric terrain normalization with a volume scattering model. Here VV is in red,VH is in green and VV/VH is in blue.
 
 ## Dependencies
 The JavaScript code runs in the GEE code editor with out installing additional packages. However, the python code requires the installation of<br/>
