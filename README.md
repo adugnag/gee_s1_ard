@@ -27,7 +27,7 @@ RGB visualization of a dual polarized (VV and VH) Sentinel-1 SAR backscatter ima
 
 ## Dependencies
 The JavaScript code runs in the GEE code editor with out installing additional packages. However, the python code requires the installation of<br/>
- [Google Earth Engine](https://github.com/google/earthengine-api)
+ [Google Earth Engine](https://github.com/google/earthengine-api) API
 
 ## References
 
