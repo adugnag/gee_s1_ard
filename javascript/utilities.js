@@ -1,12 +1,11 @@
-/*
-File: s1_ard_master/utilities.js
-Version: v1.2
-Date: 2021-02-11
-Authors: Mullissa A., Vollrath A.,  Reiche J., Slagter B., Balling J. , Gou Y., Braun, C.
-*/
+
+// File: utilities.js
+// Version: v1.2
+// Date: 2021-02-11
+// Authors: Mullissa A., Vollrath A.,  Reiche J., Slagter B., Balling J. , Gou Y., Braun, C.
 
 //---------------------------------------------------------------------------//
-// Convert format 
+// Linear to db scale 
 //---------------------------------------------------------------------------//
   
 /** Convert backscatter from linear to dB. */
@@ -16,7 +15,7 @@ exports.lin_to_db = function(image) {
   return image.addBands(db, null, true)
 };
 
-/** Convert backscatter from dB to Linear. */
+/** Convert backscatter from linear to dB. */
 exports.db_to_lin = function(image) {
   var bandNames = image.bandNames().remove('angle');
   var lin = ee.Image.constant(10).pow(image.select(bandNames).divide(10)).rename(bandNames)
