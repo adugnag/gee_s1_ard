@@ -7,7 +7,7 @@
 // ALL PREPROCESSING
 //****************************
 
-var speckle_filter = require('users/adugnagirma/grs_ard:speckle_filter');
+var speckle_filter = require('users/adugnagirma/grs_ard:speckle_filtering');
 var terrain_flattening = require('users/adugnagirma/grs_ard:terrain_flattening');
 var border_noise_correction = require('users/adugnagirma/grs_ard:border_noise_correction');
 
