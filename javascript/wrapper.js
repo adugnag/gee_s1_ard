@@ -1,20 +1,19 @@
-/*
-File: s1_ard_master/wrapper.js
-Version: v1.2
-Date: 2021-04-01
-Authors: Mullissa A., Vollrath A., Gorelick N.,  Reiche J., Slagter B., Balling J. , Gou Y., Braun, C.
-*/
+// File: S1_ARD_TEST/wrapper.js
+// Version: v1.2
+// Date: 2021-04-01
+// Authors: Mullissa A., Vollrath A., Braun, C., Slagter B., Balling J., Gou Y., Gorelick N.,  Reiche J.
+
 //****************************
 // ALL PREPROCESSING
 //****************************
 
-var speckle_filter = require('users/adugnagirma/s1_ard_master:speckle_filter');
-var terrain_flattening = require('users/adugnagirma/s1_ard_master:terrain_flattening');
-var border_noise_correction = require('users/adugnagirma/s1_ard_master:border_noise_correction');
+var speckle_filter = require('users/adugnagirma/grs_ard:speckle_filter');
+var terrain_flattening = require('users/adugnagirma/grs_ard:terrain_flattening');
+var border_noise_correction = require('users/adugnagirma/grs_ard:border_noise_correction');
 
 exports.s1_preproc = function(params) {
   
- /************************  
+  /************************  
    * 0. CHECK PARAMETERS  
   ************************/
   if (params.ORBIT === undefined) params.ORBIT = 'BOTH';
@@ -25,7 +24,7 @@ exports.s1_preproc = function(params) {
   if (params.FORMAT === undefined) params.FORMAT = 'DB';
   if (params.DEM === undefined) params.DEM = ee.Image('USGS/SRTMGL1_003');
   if (params.POLARIZATION === undefined) params.POLARIZATION = 'VVVH';
-  if (params.APPLY_BORDER_NOISE_CORRECTION === undefined) params.APPLY_BORDER_NOISE_CORRECTION = true;
+  if (params.APPLY_ADDITIONAL_BORDER_NOISE_CORRECTION === undefined) params.APPLY_ADDITIONAL_BORDER_NOISE_CORRECTION = true;
   if (params.APPLY_TERRAIN_FLATTENING===undefined) params.APPLY_TERRAIN_FLATTTENING = true;
   if (params.APPLY_SPECKLE_FILTERING===undefined) params.APPLY_SPECKLE_FILTERING = true; 
   if (params.SPECKLE_FILTER_FRAMEWORK===undefined) params.SPECKLE_FILTER_FRAMEWORK = 'MULTI';
@@ -70,7 +69,7 @@ exports.s1_preproc = function(params) {
   throw new Error("The SPECKLE_FILTER_KERNEL_SIZE should be a positive integer")}
   
   /************************  
-   * 1. SELECT DATASET
+   * 1. Data Selection
   ************************/ 
   
   // Select S1 GRD ImageCollection
@@ -78,7 +77,7 @@ var s1 = ee.ImageCollection('COPERNICUS/S1_GRD_FLOAT')
       .filter(ee.Filter.eq('instrumentMode', 'IW'))
       .filter(ee.Filter.eq('resolution_meters', 10))
       .filterDate(params.START_DATE, params.STOP_DATE)
-      .filterBounds(params.geometry);
+      .filterBounds(params.GEOMETRY);
   
   //select orbit
   if (params.ORBIT !== 'BOTH'){s1 = s1.filter(ee.Filter.eq('orbitProperties_pass', params.ORBIT))}
@@ -90,36 +89,46 @@ var s1 = ee.ImageCollection('COPERNICUS/S1_GRD_FLOAT')
   
   print('Number of images in collection: ', s1.size());
   
-  
   /************************************  
-   * 2. ADDITIONAL BORDER NOISE REMOVAL  
+   * 2. Additional Border Noise Correction  
   ****************************** ******/
   
-  if (params.APPLY_BORDER_NOISE_CORRECTION) {var s1_1 = s1.map(border_noise_correction.f_mask_edges)}
+  if (params.APPLY_ADDITIONAL_BORDER_NOISE_CORRECTION) {
+    var s1_1 = s1.map(border_noise_correction.f_mask_edges) 
+    print('ADDITIONAL BORDER NOISE CORRECTION COMPLETED') }
   else {s1_1 = s1}
 
 
   /*************************  
-   * 3. SPECKLE FILTER  
+   * 3. Speckle Filtering  
   *************************/
  if (params.APPLY_SPECKLE_FILTERING) {
     if (params.SPECKLE_FILTER_FRAMEWORK == 'MONO') {
         s1_1 = ee.ImageCollection(speckle_filter.MonoTemporal_Filter(s1_1, params.SPECKLE_FILTER_KERNEL_SIZE, params.SPECKLE_FILTER ))
+        print('MONO-TEMPORAL SPECKLE FILTERING COMPLETED') 
   }
     else {
         s1_1 = ee.ImageCollection(speckle_filter.MultiTemporal_Filter(s1_1, params.SPECKLE_FILTER_KERNEL_SIZE, params.SPECKLE_FILTER,params.NR_OF_IMAGES ));
+        print('MULTI-TEMPORAL SPECKLE FILTERING COMPLETED') 
   }    
-  print('SPECKLE FILTERING COMPLETED') 
  }  
  
    /***************************************   
-   * 4. RADIOMETRIC TERRAIN NORMALIZATION  
+   * 4. Radiometric Terrain Normalization 
   ****************************************/
   
   if (params.APPLY_TERRAIN_FLATTENING) {
       s1_1 = ee.ImageCollection(terrain_flattening.slope_correction(s1_1, params.TERRAIN_FLATTENING_MODEL, params.DEM, params.TERRAIN_FLATTENING_ADDITIONAL_LAYOVER_SHADOW_BUFFER)); 
-      print('TERRAIN FLATTENING COMPLETED')
+      print('RADIOMETRIC TERRAIN NORMALIZATION COMPLETED')
   }
+  
+      //Clip to roi (input)
+  if (params.CLIP_TO_ROI) {s1 = s1.map(function(image) {
+              return image.clip(params.GEOMETRY)})}
+  
+        //Clip to roi (processed)
+  if (params.CLIP_TO_ROI) {s1_1 = s1_1.map(function(image) {
+              return image.clip(params.GEOMETRY)})}
   
   return [s1, s1_1]
 };
