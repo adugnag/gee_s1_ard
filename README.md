@@ -14,6 +14,8 @@ This framework generates an analysis-ready-data by applying three processing mod
     ii. Multi-temporal speckle filters
 3. Radiometric Terrain Normalization
 
+The framework processes single (VV or VH) or dual (VV and VH) polarization data in either ascending, descending or both orbits at the same time. Results can be displayed and exported in the linear or dB scale. 
+
 
 ![flowchart3](https://user-images.githubusercontent.com/48068921/117692979-d840e900-b1bd-11eb-8dd4-a1d552071362.png)
 
