@@ -1,12 +1,12 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-File: s1_ard_test.js
+File: s1_ard.py
 Version: v1.2
 Date: 2021-03-10
 Authors: Mullissa A., Vollrath A., Braun, C., Slagter B., Balling J., Gou Y., Gorelick N.,  Reiche J.
 Description: This script creates an analysis ready S1 image collection.
-License: This code is distributed under the MIT license.
+License: This code is distributed under the MIT License.
 
     Parameter:
         START_DATE: The earliest date to include images for (inclusive).
@@ -18,6 +18,7 @@ License: This code is distributed under the MIT license.
         ORBIT:  The orbits to include. (string: BOTH, ASCENDING or DESCENDING)
         GEOMETRY: The region to include imagery within.
                   The user can interactively draw a bounding box within the map window or define the edge coordinates.
+        APPLY_BORDER_NOISE_CORRECTION: (Optional) true or false options to apply additional Border noise correction:
         APPLY_SPECKLE_FILTERING: (Optional) true or false options to apply speckle filter
         SPECKLE_FILTER: Type of speckle filtering to apply (String). If the APPLY_SPECKLE_FILTERING parameter is true then the selected speckle filter type will be used.
             'BOXCAR' - Applies a boxcar filter on each individual image in the collection
@@ -32,7 +33,6 @@ License: This code is distributed under the MIT license.
                                   the Multitemporal Speckle filter is applied based on  [6] with any of the above mentioned speckle filters.
         SPECKLE_FILTER_KERNEL_SIZE: is the size of the filter spatial window applied in speckle filtering. It must be a positive odd integer.
         NR_OF_IMAGES: is the number of images to use in the multi-temporal speckle filter framework.
-        APPLY_BORDER_NOISE_CORRECTION: (Optional) true or false options to apply additional Border noise correction:
         TERRAIN_FLATTENING : (Optional) true or false option to apply Terrain correction based on [7] & [8]. 
         TERRAIN_FLATTENING_MODEL : model to use for radiometric terrain normalization (DIRECT, or VOLUME)
         DEM : digital elevation model (DEM) to use (as EE asset)
@@ -60,7 +60,7 @@ References
   [7] Vollrath, A., Mullissa, A., & Reiche, J. (2020). Angular-Based Radiometric Slope Correction for Sentinel-1 on Google Earth Engine. 
     Remote Sensing, 12(11), [1867]. https://doi.org/10.3390/rs12111867
   [8] Hoekman, D.H.;  Reiche, J.   Multi-model radiometric slope correction of SAR images of221complex terrain using a two-stage semi-empirical approach.
-    Remote Sensing of Environment2222015,156, 1–10.
+    Remote Sensing of Environment 2222015,156, 1–10.
 
     """
 
@@ -78,18 +78,18 @@ parameter = {  'START_DATE': '2018-01-01',
             'POLARIZATION': 'VVVH',
             'ORBIT' : 'DESCENDING',
             'ROI': ee.Geometry.Rectangle([-47.1634, -3.00071, -45.92746, -5.43836]),
-            'DEM': ee.Image('USGS/SRTMGL1_003'),
             'APPLY_BORDER_NOISE_CORRECTION': False,
-            'APPLY_TERRAIN_FLATTENING': True,
-            'TERRAIN_FLATTENING_MODEL': 'VOLUME',
-            'TERRAIN_FLATTENING_ADDITIONAL_LAYOVER_SHADOW_BUFFER':0,
             'APPLY_SPECKLE_FILTERING': True,
             'SPECKLE_FILTER_FRAMEWORK':'MULTI',
-            'SPECKLE_FILTER': 'BOXCAR',
-            'SPECKLE_FILTER_KERNEL_SIZE': 7,
+            'SPECKLE_FILTER': 'GAMMA MAP',
+            'SPECKLE_FILTER_KERNEL_SIZE': 9,
             'NR_OF_IMAGES':10,
+            'APPLY_TERRAIN_FLATTENING': True,
+            'DEM': ee.Image('USGS/SRTMGL1_003'),
+            'TERRAIN_FLATTENING_MODEL': 'VOLUME',
+            'TERRAIN_FLATTENING_ADDITIONAL_LAYOVER_SHADOW_BUFFER':0,
             'FORMAT': 'DB',
-            'CLIP_TO_ROI': False,
+            'CLIP_TO_ROI': True,
             'SAVE_ASSET': True, 
             'ASSET_ID': "users/adugnagirma"
             }
