@@ -10,8 +10,8 @@ This framework is intended for students and researchers, who are not experts in 
 This framework generates an analysis-ready-data by applying three processing modules.
 1. Addtional Border noise correction
 2. Speckle Filtering 
-- Mono-temporal 
-- Multi-temporal 
+   - Mono-temporal 
+   - Multi-temporal 
 3. Radiometric Terrain Normalization
 
 The framework processes single (VV or VH) or dual (VV and VH) polarization data in either ascending, descending or both orbits at the same time. Results can be displayed and exported in the linear or dB scale. 
