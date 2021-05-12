@@ -32,7 +32,8 @@ License: This code is distributed under the MIT License.
                                   the filtering is applied to each image in the collection individually. Whereas, in the MULTI case,
                                   the Multitemporal Speckle filter is applied based on  [6] with any of the above mentioned speckle filters.
         SPECKLE_FILTER_KERNEL_SIZE: is the size of the filter spatial window applied in speckle filtering. It must be a positive odd integer.
-        NR_OF_IMAGES: is the number of images to use in the multi-temporal speckle filter framework.
+        SPECKLE_FILTER_NR_OF_IMAGES: is the number of images to use in the multi-temporal speckle filter framework. All images are selected before the date of image to be filtered.
+                                    However, if there are not enough images before it then images after the date are selected.
         TERRAIN_FLATTENING : (Optional) true or false option to apply Terrain correction based on [7] & [8]. 
         TERRAIN_FLATTENING_MODEL : model to use for radiometric terrain normalization (DIRECT, or VOLUME)
         DEM : digital elevation model (DEM) to use (as EE asset)
