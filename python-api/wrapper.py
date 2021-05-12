@@ -175,10 +175,10 @@ def s1_preproc(params):
     #######################
 
     if (APPLY_TERRAIN_FLATTENING):
-        s1_1 = trf.slope_correction(s1_1 
+        s1_1 = (trf.slope_correction(s1_1 
                                     ,TERRAIN_FLATTENING_MODEL
                                         ,DEM
-                                                ,TERRAIN_FLATTENING_ADDITIONAL_LAYOVER_SHADOW_BUFFER)
+                                                ,TERRAIN_FLATTENING_ADDITIONAL_LAYOVER_SHADOW_BUFFER))
         print('Radiometric terrain normalization is completed')
 
     ########################
