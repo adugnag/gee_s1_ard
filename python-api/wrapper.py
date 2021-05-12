@@ -3,7 +3,7 @@
 """
 Version: v1.2
 Date: 2021-04-01
-Authors: Mullissa A., Vollrath A., Gorelick N.,  Reiche J., Slagter B., Balling J. , Gou Y., Braun, C.
+Authors: Mullissa A., Vollrath A., Braun, C., Slagter B., Balling J., Gou Y., Gorelick N.,  Reiche J.
 Description: A wrapper function to derive the Sentinel-1 ARD
 """
 
@@ -153,6 +153,7 @@ def s1_preproc(params):
 
     if (APPLY_BORDER_NOISE_CORRECTION):
         s1_1 = s1.map(bnc.f_mask_edges)
+        print('Additional border noise correction is completed')
     else:
         s1_1 = s1
     ########################
@@ -162,8 +163,10 @@ def s1_preproc(params):
     if (APPLY_SPECKLE_FILTERING):
         if (SPECKLE_FILTER_FRAMEWORK == 'MONO'):
             s1_1 = ee.ImageCollection(sf.MonoTemporal_Filter(s1_1, SPECKLE_FILTER_KERNEL_SIZE, SPECKLE_FILTER))
+            print('Mono-temporal speckle filtering is completed')
         else:
             s1_1 = ee.ImageCollection(sf.MultiTemporal_Filter(s1_1, SPECKLE_FILTER_KERNEL_SIZE, SPECKLE_FILTER, NR_OF_IMAGES))
+            print('Multi-temporal speckle filtering is completed')
 
     ########################
     # 4. TERRAIN CORRECTION
@@ -174,6 +177,7 @@ def s1_preproc(params):
                                     ,TERRAIN_FLATTENING_MODEL
                                         ,DEM
                                                 ,TERRAIN_FLATTENING_ADDITIONAL_LAYOVER_SHADOW_BUFFER)
+        print('Radiometric terrain normalization is completed')
 
     ########################
     # 5. OUTPUT
@@ -197,7 +201,7 @@ def s1_preproc(params):
             img = ee.Image(img)
             name = str(img.id().getInfo())
             #name = str(idx)
-            description = name
+            description = name           
             assetId = ASSET_ID+'/'+name
 
             task = ee.batch.Export.image.toAsset(image=img,
