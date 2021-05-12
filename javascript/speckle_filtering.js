@@ -1,7 +1,7 @@
 /* File: speckle_filter.js
 Version: v1.1
 Date: 2021-03-11
-Authors: Mullissa A., Vollrath A., Gorelick N.,  Reiche J., Slagter B., Balling J. , Gou Y., Braun, C.
+Authors: Mullissa A., Vollrath A., Braun, C., Slagter B., Balling J., Gou Y., Gorelick N.,  Reiche J.
 Description: This script contains functions for implementing both monotemporal and multi-temporal speckle filters */
 
 
@@ -64,10 +64,8 @@ var leefilter = function(image,KERNEL_SIZE) {
 // GAMMA MAP filter 
 //---------------------------------------------------------------------------//
 /** Gamma Maximum a-posterior Filter applied to one image. It is implemented as described in 
-A. Lopes, R. Touzi, and E. Nezry, “Adaptative speckle filters and scene heterogeneity,
-IEEE Trans. Geosci. Remote Sensing, vol. 28, pp. 992–1000, Nov. 1990 
-and Lopes, A.; Nezry, E.; Touzi, R.; Laur, H.  Maximum a posteriori speckle filtering and first204order texture models in SAR images.  
-10th annual international symposium on geoscience205and remote sensing. Ieee, 1990, pp. 2409–2412. */
+Lopes A., Nezry, E., Touzi, R., and Laur, H., 1990.  Maximum A Posteriori Speckle Filtering and First Order texture Models in SAR Images.  
+International  Geoscience  and  Remote  Sensing  Symposium (IGARSS).  */
 
 var gammamap =  function(image,KERNEL_SIZE) { 
         var enl = 5;
@@ -107,7 +105,7 @@ var gammamap =  function(image,KERNEL_SIZE) {
         var zHat = (z.updateMask(ci.lte(cu))).rename(bandNames)
         //if cmax > ci > cu then its a textured medium ->> apply Gamma MAP filter
         rHat = (rHat.updateMask(ci.gt(cu)).updateMask(ci.lt(cmax))).rename(bandNames)
-        //ci>=cmax then its strong signal ->> retain
+        //if ci>=cmax then its strong signal ->> retain
         var x = image.select(bandNames).updateMask(ci.gte(cmax)).rename(bandNames)
   
         // Merge
