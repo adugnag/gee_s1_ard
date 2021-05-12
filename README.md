@@ -29,4 +29,4 @@ The JavaScript code runs in the GEE code editor with out installing additional p
 
 ## References
 
-Mullissa, A., Vollrath, A., Odongo-Braun, C., Slagter, B., Balling, J., Gou, Y., Gorelick, N., Reiche, J. (2021). Sentinel-1 SAR Backscatter Analysis-Ready-Data Preparation inGoogle Earth Engine. Remote Sensing, xxx, 1-7.
+Mullissa, A., Vollrath, A., Odongo-Braun, C., Slagter, B., Balling, J., Gou, Y., Gorelick, N., Reiche, J. (2021). Sentinel-1 SAR Backscatter Analysis-Ready-Data Preparation in Google Earth Engine. Remote Sensing, xxx, 1-7.
