@@ -4,7 +4,7 @@
 """
 Version: v1.0
 Date: 2021-03-12
-Authors: Mullissa A., Vollrath A.,  Reiche J., Slagter B., Balling J. , Gou Y., Braun, C.
+Authors: Mullissa A., Vollrath A., Braun, C., Slagter B., Balling J., Gou Y., Gorelick N.,  Reiche J.
 Description: A collection of functions to perform mono-temporal and multi-temporal speckle filtering
 """
 import ee
@@ -74,10 +74,10 @@ def leefilter(image, KERNEL_SIZE):
                       reducer2= ee.Reducer.variance()
                       ,sharedInputs= True
                       )
-    stats = image.select(bandNames).reduceNeighborhood(
+    stats = (image.select(bandNames).reduceNeighborhood(
                       reducer= reducers
                           ,kernel= ee.Kernel.square(KERNEL_SIZE/2, 'pixels')
-                              ,optimization= 'window')
+                              ,optimization= 'window'))
     meanBand = bandNames.map(lambda bandName: ee.String(bandName).cat('_mean'))
     varBand = bandNames.map(lambda bandName:  ee.String(bandName).cat('_variance'))
 
@@ -119,10 +119,10 @@ def gammamap(image,KERNEL_SIZE):
                       reducer2= ee.Reducer.stdDev(), \
                       sharedInputs= True
                       )
-    stats = image.select(bandNames).reduceNeighborhood( \
+    stats = (image.select(bandNames).reduceNeighborhood( \
                       reducer= reducers, \
                           kernel= ee.Kernel.square(KERNEL_SIZE/2,'pixels'), \
-                              optimization= 'window')
+                              optimization= 'window'))
     meanBand = bandNames.map(lambda bandName: ee.String(bandName).cat('_mean'))
     stdDevBand = bandNames.map(lambda bandName:  ee.String(bandName).cat('_stdDev'))
         
@@ -392,7 +392,6 @@ def leesigma(image,KERNEL_SIZE):
 # 2. MONO-TEMPORAL SPECKLE FILTER (WRAPPER)
 #---------------------------------------------------------------------------//
 
-"""Mono-temporal speckle Filter  """
 
 def MonoTemporal_Filter(coll,KERNEL_SIZE, SPECKLE_FILTER) :
     """
@@ -445,7 +444,7 @@ def MultiTemporal_Filter(coll,KERNEL_SIZE, SPECKLE_FILTER,NR_OF_IMAGES):
         Spatial Neighbourhood window
     SPECKLE_FILTER : String
         Type of speckle filter
-    NR_OF_IMAGES : integer
+    NR_OF_IMAGES : positive integer
         Number of images to use in multi-temporal filtering
 
     Returns
@@ -489,7 +488,7 @@ def MultiTemporal_Filter(coll,KERNEL_SIZE, SPECKLE_FILTER,NR_OF_IMAGES):
             Parameters
             ----------
             image : ee.Image
-                Image whose geometry to use to define the new collection
+                Image whose geometry is used to define the new collection
 
             Returns
             -------
@@ -507,6 +506,21 @@ def MultiTemporal_Filter(coll,KERNEL_SIZE, SPECKLE_FILTER,NR_OF_IMAGES):
       
             #a function that takes the image and checks for the overlap
             def check_overlap(_image):
+                """
+                get all S1 frames from this date intersecting with the image bounds
+
+                Parameters
+                ----------
+                _image : ee.Image
+                    Image to check the overlap with
+
+                Returns
+                -------
+                ee Image Collection
+                    A collection with matching geometry
+
+                """
+                
                 # get all S1 frames from this date intersecting with the image bounds
                 s1 = s1_coll.filterDate(_image.date(), _image.date().advance(1, 'day'))
                 # intersect those images with the image to filter
