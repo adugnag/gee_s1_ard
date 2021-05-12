@@ -23,6 +23,7 @@ The framework processes single (VV or VH) or dual (VV and VH) polarization data 
 The details about parameter setting and their associated methods is described in the main script and accompanying technical note published in MDPI Remote sensing xxxxx.
 
 ![github_pic2](https://user-images.githubusercontent.com/48068921/117958586-75fdfa80-b31b-11eb-9000-d1eed1ebb675.png)
+
 RGB visualization of a dual polarized (VV and VH) Sentinel-1 SAR backscatter image ofcentral Borneo, Indonesia (Lat: -0.35, Lon: 112.15) (a) as ingested into Google Earth Engine; and (b)after applying additional boarder noise removal, a9×9 multi-temporal Gamma MAP specklefilter and radiometric terrain normalization with a volume scattering model. Here VV is in red,VH is in green and VV/VH is in blue.
 
 ## Dependencies
