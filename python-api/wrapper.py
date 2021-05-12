@@ -49,7 +49,7 @@ def s1_preproc(params):
     SPECKLE_FILTER_FRAMEWORK = params['SPECKLE_FILTER_FRAMEWORK']
     SPECKLE_FILTER = params['SPECKLE_FILTER']
     SPECKLE_FILTER_KERNEL_SIZE = params['SPECKLE_FILTER_KERNEL_SIZE']
-    NR_OF_IMAGES = params['NR_OF_IMAGES']
+    SPECKLE_FILTER_NR_OF_IMAGES = params['SPECKLE_FILTER_NR_OF_IMAGES']
     TERRAIN_FLATTENING_MODEL = params['TERRAIN_FLATTENING_MODEL']
     DEM = params['DEM']
     TERRAIN_FLATTENING_ADDITIONAL_LAYOVER_SHADOW_BUFFER = params['TERRAIN_FLATTENING_ADDITIONAL_LAYOVER_SHADOW_BUFFER']
@@ -165,7 +165,7 @@ def s1_preproc(params):
             s1_1 = ee.ImageCollection(sf.MonoTemporal_Filter(s1_1, SPECKLE_FILTER_KERNEL_SIZE, SPECKLE_FILTER))
             print('Mono-temporal speckle filtering is completed')
         else:
-            s1_1 = ee.ImageCollection(sf.MultiTemporal_Filter(s1_1, SPECKLE_FILTER_KERNEL_SIZE, SPECKLE_FILTER, NR_OF_IMAGES))
+            s1_1 = ee.ImageCollection(sf.MultiTemporal_Filter(s1_1, SPECKLE_FILTER_KERNEL_SIZE, SPECKLE_FILTER, SPECKLE_FILTER_NR_OF_IMAGES))
             print('Multi-temporal speckle filtering is completed')
 
     ########################
