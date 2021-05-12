@@ -108,7 +108,7 @@ var s1 = ee.ImageCollection('COPERNICUS/S1_GRD_FLOAT')
         print('MONO-TEMPORAL SPECKLE FILTERING COMPLETED') 
   }
     else {
-        s1_1 = ee.ImageCollection(speckle_filter.MultiTemporal_Filter(s1_1, params.SPECKLE_FILTER_KERNEL_SIZE, params.SPECKLE_FILTER,params.NR_OF_IMAGES ));
+        s1_1 = ee.ImageCollection(speckle_filter.MultiTemporal_Filter(s1_1, params.SPECKLE_FILTER_KERNEL_SIZE, params.SPECKLE_FILTER,params.SPECKLE_FILTER_NR_OF_IMAGES ));
         print('MULTI-TEMPORAL SPECKLE FILTERING COMPLETED') 
   }    
  }  
