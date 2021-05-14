@@ -60,8 +60,8 @@ References
     Remote Sensing of Environment2222015,156, 1–10.
 **/
 
-var wrapper = require('users/adugnagirma/grs_ard:wrapper');
-var helper = require('users/adugnagirma/grs_ard:utilities');
+var wrapper = require('users/adugnagirma/gee_s1_ard:wrapper');
+var helper = require('users/adugnagirma/gee_s1_ard:utilities');
 
 //---------------------------------------------------------------------------//
 // DEFINE PARAMETERS
