@@ -90,8 +90,8 @@ parameter = {  'START_DATE': '2018-01-01',
             'TERRAIN_FLATTENING_MODEL': 'VOLUME',
             'TERRAIN_FLATTENING_ADDITIONAL_LAYOVER_SHADOW_BUFFER':0,
             'FORMAT': 'DB',
-            'CLIP_TO_ROI': True,
-            'SAVE_ASSET': True, 
+            'CLIP_TO_ROI': False,
+            'SAVE_ASSET': False, 
             'ASSET_ID': "users/adugnagirma"
             }
 #processed s1 collection
