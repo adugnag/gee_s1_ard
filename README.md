@@ -21,7 +21,7 @@ The framework processes single (VV or VH) or dual (VV and VH) polarization data 
 
 ## Usage
 The details about parameter setting and their associated methods is described in the main script and accompanying technical note published in MDPI Remote sensing (link). 
-The user should adjust the script path and GEE id to their own path and id before processing.
+When using the Python API, the user should adjust the script path and GEE id to their own path and id before processing.
 
 ![github_pic2](https://user-images.githubusercontent.com/48068921/117958586-75fdfa80-b31b-11eb-9000-d1eed1ebb675.png)
 
