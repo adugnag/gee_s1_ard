@@ -21,6 +21,9 @@ The framework processes single (VV or VH) or dual (VV and VH) polarization data 
 
 ## Usage
 The details about parameter setting and their associated methods is described in the main script and accompanying [technical note](https://www.mdpi.com/2072-4292/13/10/1954/htm) published in MDPI Remote sensing. 
+
+To use the framework in GEE code editor, copy the contents of s1_ard.js to your own repository. The path to the helper functions i.e. ('users/adugnagirma/gee_s1_ard is a public repository so you don't need to have the functions in your path.
+
 When using the Python API, the user should adjust the script path and GEE id to their own path and id before processing.
 
 ![github_pic2](https://user-images.githubusercontent.com/48068921/117958586-75fdfa80-b31b-11eb-9000-d1eed1ebb675.png)
