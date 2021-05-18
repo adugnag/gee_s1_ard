@@ -4,7 +4,7 @@ Date: 2021-03-11
 Authors: Adopted from Hird et al. 2017 Remote Sensing (supplementary material): http://www.mdpi.com/2072-4292/9/12/1315)
 Description: This script applied additional border noise correction */
 
-var helper = require('users/adugnagirma/grs_ard:utilities');
+var helper = require('users/adugnagirma/gee_s1_ard:utilities');
 
 //---------------------------------------------------------------------------//
 // Additional Border Noise Removal
