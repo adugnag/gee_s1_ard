@@ -1,4 +1,4 @@
-/* File: s1_ard_test.js
+/* File: s1_ard.js
 Version: v1.2
 Date: 2021-03-10
 Authors: Mullissa A., Vollrath A., Braun, C., Slagter B., Balling J., Gou Y., Gorelick N.,  Reiche J.
