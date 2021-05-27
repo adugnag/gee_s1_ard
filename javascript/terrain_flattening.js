@@ -57,9 +57,10 @@ exports.slope_correction = function(collection, TERRAIN_FLATTENING_MODEL,
         
         // calculate the look direction
         var heading = (ee.Terrain.aspect(image.select('angle'))
-                                     .reduceRegion(ee.Reducer.mean(),image.geometry(),1000)
-                                     .get('aspect'))
+                                     .reduceRegion(ee.Reducer.mean(),image.geometry(),1000))
         
+        // in case of null values for heading replace with 0
+        heading = ee.Dictionary(heading).combine({aspect: 0}, false).get('aspect')
         // the numbering follows the article chapters
         // 2.1.1 Radar geometry 
         var theta_iRad = image.select('angle').multiply(Math.PI/180)
