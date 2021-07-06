@@ -24,7 +24,7 @@ var maskAngGT30 = function(image) {
 
 /** Remove edges.*/
 var maskEdge = function(image) {
-  var mask = image.select(0).unitScale(-25, 5).multiply(255).toByte().connectedComponents(ee.Kernel.rectangle(1,1), 100);
+  var mask = image.select(0).unitScale(-25, 5).multiply(255).toByte()//.connectedComponents(ee.Kernel.rectangle(1,1), 100);
   return image.updateMask(mask.select(0)).set('system:time_start', image.get('system:time_start'));  
 };
 
