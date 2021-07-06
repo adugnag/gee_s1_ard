@@ -71,7 +71,7 @@ def maskEdge(image):
 
     """
 
-    mask = image.select(0).unitScale(-25, 5).multiply(255).toByte().connectedComponents(ee.Kernel.rectangle(1,1), 100)
+    mask = image.select(0).unitScale(-25, 5).multiply(255).toByte()#.connectedComponents(ee.Kernel.rectangle(1,1), 100)
     return image.updateMask(mask.select(0)).set('system:time_start', image.get('system:time_start')) 
 
 
