@@ -76,6 +76,7 @@ exports.s1_preproc = function(params) {
 var s1 = ee.ImageCollection('COPERNICUS/S1_GRD_FLOAT')
       .filter(ee.Filter.eq('instrumentMode', 'IW'))
       .filter(ee.Filter.eq('resolution_meters', 10))
+      .filter(ee.Filter.listContains('transmitterReceiverPolarisation', 'VH'))
       .filterDate(params.START_DATE, params.STOP_DATE)
       .filterBounds(params.GEOMETRY);
   
