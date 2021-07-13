@@ -357,19 +357,25 @@ var Quegan = function(image) {
         - amount of images taken for filtering 
             -- all before
            -- if not enough, images taken after the image to filter are added */
+    var setresample = function (image){
+        return image.resample();
+    };
+    
     var get_filtered_collection = function (image){
-  
+      
+      
       // filter collection over are and by relative orbit
       var s1_coll = ee.ImageCollection('COPERNICUS/S1_GRD_FLOAT')
                 .filterBounds(image.geometry())
                 .filter(ee.Filter.eq('instrumentMode', 'IW'))
+                .filter(ee.Filter.listContains('transmitterReceiverPolarisation', ee.List(image.get('transmitterReceiverPolarisation')).get(-1)))
                 // we need to get this from the image
-                //.filter(ee.Filter.listContains('transmitterReceiverPolarisation', 'VV'))
+                //.filter(ee.Filter.and(ee.Filter.eq('transmitterReceiverPolarisation', 'VH'),ee.Filter.eq('transmitterReceiverPolarisation', 'VH')) )
                 // we filter for both because of potential change in orbit number around the Equator
                 .filter(ee.Filter.or(
                     ee.Filter.eq('relativeOrbitNumber_stop', image.get('relativeOrbitNumber_stop')),
                     ee.Filter.eq('relativeOrbitNumber_stop', image.get('relativeOrbitNumber_start'))
-                ))
+                )).map(setresample)
       
       // a function that takes the image and checks for the overlap
       var check_overlap = function(_image){
