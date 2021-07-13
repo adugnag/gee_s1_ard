@@ -480,7 +480,9 @@ def MultiTemporal_Filter(coll,KERNEL_SIZE, SPECKLE_FILTER,NR_OF_IMAGES):
             Filtered image
 
         """
-    
+        def setresample(image):
+                return image.resample()
+            
         def get_filtered_collection(image):
             """
             Generate a dedicated image collection
@@ -500,9 +502,10 @@ def MultiTemporal_Filter(coll,KERNEL_SIZE, SPECKLE_FILTER,NR_OF_IMAGES):
             s1_coll = ee.ImageCollection('COPERNICUS/S1_GRD_FLOAT') \
                 .filterBounds(image.geometry()) \
                 .filter(ee.Filter.eq('instrumentMode', 'IW')) \
+                .filter(ee.Filter.listContains('transmitterReceiverPolarisation', ee.List(image.get('transmitterReceiverPolarisation')).get(-1))) \
                 .filter(ee.Filter.Or(ee.Filter.eq('relativeOrbitNumber_stop', image.get('relativeOrbitNumber_stop')), \
                                      ee.Filter.eq('relativeOrbitNumber_stop', image.get('relativeOrbitNumber_start'))
-                ))
+                )).map(setresample)
       
             #a function that takes the image and checks for the overlap
             def check_overlap(_image):
