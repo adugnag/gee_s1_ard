@@ -95,6 +95,6 @@ def f_mask_edges(image):
     db_img = helper.lin_to_db(image)
     output = maskAngGT30(db_img)
     output = maskAngLT452(output)
-    output = maskEdge(output)
+    #output = maskEdge(output)
     output = helper.db_to_lin(output)
     return output.set('system:time_start', image.get('system:time_start'))
