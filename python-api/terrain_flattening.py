@@ -159,6 +159,11 @@ def slope_correction(collection, TERRAIN_FLATTENING_MODEL
         """
 
         bandNames = image.bandNames()
+        
+        geom = image.geometry()
+        proj = image.select(1).projection()
+        
+        elevation = DEM.reproject(proj).clip(geom)
 
         # calculate the look direction
         heading = ee.Terrain.aspect(image.select('angle')).reduceRegion(ee.Reducer.mean(), image.geometry(), 1000)
@@ -191,7 +196,7 @@ def slope_correction(collection, TERRAIN_FLATTENING_MODEL
           .multiply(-1)   # make aspect uphill
           .multiply(Math.PI / 180)
           
-        height = DEM.reproject(proj).clip(geom)
+        elevation = DEM.reproject(proj).clip(geom)
 
         # 2.1.3 Model geometry
         # reduce to 3 angle
