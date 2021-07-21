@@ -166,14 +166,32 @@ def slope_correction(collection, TERRAIN_FLATTENING_MODEL
         
         #in case of null values for heading replace with 0
         heading = ee.Dictionary(heading).combine({'aspect': 0}, False).get('aspect')
+        
+        heading = ee.Algorithms.If(
+            ee.Number(heading).gt(180),
+            ee.Number(heading).subtract(360),
+            ee.Number(heading)
+        )
+        
         # the numbering follows the article chapters
         # 2.1.1 Radar geometry
         theta_iRad = image.select('angle').multiply(math.pi/180)
         phi_iRad = ee.Image.constant(heading).multiply(math.pi/180)
         
         # 2.1.2 Terrain geometry
-        alpha_sRad = ee.Terrain.slope(DEM).select('slope').multiply(math.pi/180)
-        phi_sRad = ee.Terrain.aspect(DEM).select('aspect').multiply(math.pi/180)
+        alpha_sRad = ee.Terrain.slope(elevation).select('slope').multiply(Math.PI / 180)
+        aspect = ee.Terrain.aspect(elevation).select('aspect').clip(geom)
+        
+        aspect_minus = aspect.updateMask(aspect.gt(180)).subtract(360)
+        
+        phi_sRad = aspect
+          .updateMask(aspect.lte(180))
+          .unmask() 
+          .add(aspect_minus.unmask()) #add the minus values
+          .multiply(-1)   # make aspect uphill
+          .multiply(Math.PI / 180)
+          
+        height = DEM.reproject(proj).clip(geom)
 
         # 2.1.3 Model geometry
         # reduce to 3 angle
@@ -197,7 +215,7 @@ def slope_correction(collection, TERRAIN_FLATTENING_MODEL
             scf = _direct_model_SCF(theta_iRad, alpha_rRad, alpha_azRad)
 
         # apply model for Gamm0
-        gamma0_flat = gamma0.divide(scf)
+        gamma0_flat = gamma0.multiply(scf)
 
         # get Layover/Shadow mask
         mask = _masking(alpha_rRad, theta_iRad, TERRAIN_FLATTENING_ADDITIONAL_LAYOVER_SHADOW_BUFFER)
