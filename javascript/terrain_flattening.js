@@ -55,6 +55,8 @@ exports.slope_correction = function(collection, TERRAIN_FLATTENING_MODEL,
         var geom = image.geometry()
         var proj = image.select(1).projection()
         
+        var elevation = DEM.reproject(proj).clip(geom)
+        
         // calculate the look direction
         var heading = (ee.Terrain.aspect(image.select('angle'))
                                      .reduceRegion(ee.Reducer.mean(),image.geometry(),1000))
