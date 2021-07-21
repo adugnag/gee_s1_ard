@@ -61,17 +61,40 @@ exports.slope_correction = function(collection, TERRAIN_FLATTENING_MODEL,
         
         // in case of null values for heading replace with 0
         heading = ee.Dictionary(heading).combine({aspect: 0}, false).get('aspect')
+    
+        heading = ee.Algorithms.If(
+            ee.Number(heading).gt(180),
+            ee.Number(heading).subtract(360),
+            ee.Number(heading)
+        )
         // the numbering follows the article chapters
         // 2.1.1 Radar geometry 
         var theta_iRad = image.select('angle').multiply(Math.PI/180)
         var phi_iRad = ee.Image.constant(heading).multiply(Math.PI/180)
         
         // 2.1.2 Terrain geometry
-        var alpha_sRad = ee.Terrain.slope(DEM).select('slope').multiply(Math.PI/180)//.reproject(proj).clip(geom)
-        var phi_sRad = ee.Terrain.aspect(DEM).select('aspect').multiply(Math.PI/180)//.reproject(proj).clip(geom)
+        //slope 
+        var alpha_sRad = ee.Terrain.slope(elevation).select('slope').multiply(Math.PI / 180)
+
+        // aspect (-180 to 180)
+        var aspect = ee.Terrain.aspect(elevation).select('aspect').clip(geom)
+
+        // we need to subtract 360 degree from all values above 180 degree
+        var aspect_minus = aspect
+          .updateMask(aspect.gt(180))
+          .subtract(360)
+
+        // we fill the aspect layer with the subtracted values from aspect_minus
+        var phi_sRad = aspect
+          .updateMask(aspect.lte(180))
+          .unmask() 
+          .add(aspect_minus.unmask()) //add the minus values
+          .multiply(-1)   // make aspect uphill
+          .multiply(Math.PI / 180) // make it rad
         
         // we get the height, for export 
         var height = DEM.reproject(proj).clip(geom)
+        
         
         // 2.1.3 Model geometry
         //reduce to 3 angle
@@ -100,7 +123,7 @@ exports.slope_correction = function(collection, TERRAIN_FLATTENING_MODEL,
             var scf = _direct_model_SCF(theta_iRad, alpha_rRad, alpha_azRad)
         }
         // apply model for Gamm0
-        var gamma0_flat = gamma0.divide(scf)
+        var gamma0_flat = gamma0.multiply(scf)
 
         // get Layover/Shadow mask
         var mask = _masking(alpha_rRad, theta_iRad, TERRAIN_FLATTENING_ADDITIONAL_LAYOVER_SHADOW_BUFFER);
