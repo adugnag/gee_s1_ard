@@ -163,7 +163,7 @@ def slope_correction(collection, TERRAIN_FLATTENING_MODEL
         geom = image.geometry()
         proj = image.select(1).projection()
         
-        elevation = DEM.reproject(proj).clip(geom)
+        elevation = DEM.resample('bilinear').reproject({crs:proj, scale:10}).clip(geom)
 
         # calculate the look direction
         heading = ee.Terrain.aspect(image.select('angle')).reduceRegion(ee.Reducer.mean(), image.geometry(), 1000)
