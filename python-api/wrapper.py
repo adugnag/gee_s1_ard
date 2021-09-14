@@ -7,6 +7,7 @@ Authors: Mullissa A., Vollrath A., Braun, C., Slagter B., Balling J., Gou Y., Go
 Description: A wrapper function to derive the Sentinel-1 ARD
 """
 
+
 import ee
 import border_noise_correction as bnc
 import speckle_filter as sf
@@ -40,7 +41,8 @@ def s1_preproc(params):
         A processed Sentinel-1 image collection
 
     """
-    
+
+
     APPLY_BORDER_NOISE_CORRECTION = params['APPLY_BORDER_NOISE_CORRECTION']
     APPLY_TERRAIN_FLATTENING = params['APPLY_TERRAIN_FLATTENING']
     APPLY_SPECKLE_FILTERING = params['APPLY_SPECKLE_FILTERING']
@@ -129,10 +131,10 @@ def s1_preproc(params):
     ###########################################
 
     # select S-1 image collection
-    s1 = ee.ImageCollection('COPERNICUS/S1_GRD_FLOAT') \
-        .filter(ee.Filter.eq('instrumentMode', 'IW')) \
+    s1 = ee.ImageCollection('COPERNICUS/S1_GRD_FLOAT')\
+        .filter(ee.Filter.eq('instrumentMode', 'IW'))\
         .filter(ee.Filter.eq('resolution_meters', 10)) \
-        .filter(ee.Filter.listContains('transmitterReceiverPolarisation', 'VH'))
+        .filter(ee.Filter.listContains('transmitterReceiverPolarisation', 'VH'))\
         .filterDate(START_DATE, STOP_DATE) \
         .filterBounds(ROI)
 
