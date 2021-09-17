@@ -48,6 +48,7 @@ def s1_preproc(params):
     APPLY_SPECKLE_FILTERING = params['APPLY_SPECKLE_FILTERING']
     POLARIZATION = params['POLARIZATION']
     ORBIT = params['ORBIT']
+    ORBIT_NUM = params['ORBIT_NUM']
     SPECKLE_FILTER_FRAMEWORK = params['SPECKLE_FILTER_FRAMEWORK']
     SPECKLE_FILTER = params['SPECKLE_FILTER']
     SPECKLE_FILTER_KERNEL_SIZE = params['SPECKLE_FILTER_KERNEL_SIZE']
@@ -137,6 +138,10 @@ def s1_preproc(params):
         .filter(ee.Filter.listContains('transmitterReceiverPolarisation', 'VH'))\
         .filterDate(START_DATE, STOP_DATE) \
         .filterBounds(ROI)
+    if (ORBIT_NUM != None):
+        s1 = s1.filter(ee.Filter.eq('relativeOrbitNumber_start',ORBIT_NUM))
+        #.filter(ee.Filter.eq('relativeOrbitNumber_start',None))
+
 
     # select orbit
     if (ORBIT != 'BOTH'):
