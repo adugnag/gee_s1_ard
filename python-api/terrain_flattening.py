@@ -162,8 +162,8 @@ def slope_correction(collection, TERRAIN_FLATTENING_MODEL
         
         geom = image.geometry()
         proj = image.select(1).projection()
-        
-        elevation = DEM.resample('bilinear').reproject({crs:proj, scale:10}).clip(geom)
+
+        elevation = DEM.resample('bilinear').reproject(proj,None, 10).clip(geom)
 
         # calculate the look direction
         heading = ee.Terrain.aspect(image.select('angle')).reduceRegion(ee.Reducer.mean(), image.geometry(), 1000)
@@ -184,19 +184,19 @@ def slope_correction(collection, TERRAIN_FLATTENING_MODEL
         phi_iRad = ee.Image.constant(heading).multiply(math.pi/180)
         
         # 2.1.2 Terrain geometry
-        alpha_sRad = ee.Terrain.slope(elevation).select('slope').multiply(Math.PI / 180)
+        alpha_sRad = ee.Terrain.slope(elevation).select('slope').multiply(math.pi / 180)
+
         aspect = ee.Terrain.aspect(elevation).select('aspect').clip(geom)
         
         aspect_minus = aspect.updateMask(aspect.gt(180)).subtract(360)
         
-        phi_sRad = aspect
-          .updateMask(aspect.lte(180))
-          .unmask() 
-          .add(aspect_minus.unmask()) #add the minus values
-          .multiply(-1)   # make aspect uphill
-          .multiply(Math.PI / 180)
+        phi_sRad = aspect.updateMask(aspect.lte(180))\
+            .unmask()\
+            .add(aspect_minus.unmask())\
+            .multiply(-1)\
+            .multiply(math.pi / 180)
           
-        elevation = DEM.reproject(proj).clip(geom)
+        #elevation = DEM.reproject(proj,None, 10).clip(geom)
 
         # 2.1.3 Model geometry
         # reduce to 3 angle

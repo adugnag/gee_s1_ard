@@ -7,6 +7,7 @@ Authors: Mullissa A., Vollrath A., Braun, C., Slagter B., Balling J., Gou Y., Go
 Description: A wrapper function to derive the Sentinel-1 ARD
 """
 
+
 import ee
 import border_noise_correction as bnc
 import speckle_filter as sf
@@ -40,12 +41,15 @@ def s1_preproc(params):
         A processed Sentinel-1 image collection
 
     """
-    
+
+
     APPLY_BORDER_NOISE_CORRECTION = params['APPLY_BORDER_NOISE_CORRECTION']
     APPLY_TERRAIN_FLATTENING = params['APPLY_TERRAIN_FLATTENING']
     APPLY_SPECKLE_FILTERING = params['APPLY_SPECKLE_FILTERING']
     POLARIZATION = params['POLARIZATION']
+    PLATFORM_NUMBER = params['PLATFORM_NUMBER']
     ORBIT = params['ORBIT']
+    ORBIT_NUM = params['ORBIT_NUM']
     SPECKLE_FILTER_FRAMEWORK = params['SPECKLE_FILTER_FRAMEWORK']
     SPECKLE_FILTER = params['SPECKLE_FILTER']
     SPECKLE_FILTER_KERNEL_SIZE = params['SPECKLE_FILTER_KERNEL_SIZE']
@@ -129,12 +133,21 @@ def s1_preproc(params):
     ###########################################
 
     # select S-1 image collection
-    s1 = ee.ImageCollection('COPERNICUS/S1_GRD_FLOAT') \
-        .filter(ee.Filter.eq('instrumentMode', 'IW')) \
+    s1 = ee.ImageCollection('COPERNICUS/S1_GRD_FLOAT')\
+        .filter(ee.Filter.eq('instrumentMode', 'IW'))\
         .filter(ee.Filter.eq('resolution_meters', 10)) \
-        .filter(ee.Filter.listContains('transmitterReceiverPolarisation', 'VH'))
+        .filter(ee.Filter.listContains('transmitterReceiverPolarisation', 'VH'))\
         .filterDate(START_DATE, STOP_DATE) \
         .filterBounds(ROI)
+
+    if (PLATFORM_NUMBER=='A' or PLATFORM_NUMBER=='B' ):
+        s1 = s1.filter(ee.Filter.eq('platform_number', PLATFORM_NUMBER))
+   
+
+    if (ORBIT_NUM != None):
+        s1 = s1.filter(ee.Filter.eq('relativeOrbitNumber_start',ORBIT_NUM))
+        #.filter(ee.Filter.eq('relativeOrbitNumber_start',None))
+
 
     # select orbit
     if (ORBIT != 'BOTH'):
