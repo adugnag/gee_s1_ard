@@ -27,7 +27,7 @@ def s1_preproc(params):
 
     Parameters
     ----------
-    params : List
+    params : Dictionary
         These parameters determine the data selection and image processing parameters.
 
     Raises
@@ -60,7 +60,6 @@ def s1_preproc(params):
     FORMAT = params['FORMAT']
     START_DATE = params['START_DATE']
     STOP_DATE = params['STOP_DATE']
-    ORBIT = params['ORBIT']
     ROI = params['ROI']
     CLIP_TO_ROI = params['CLIP_TO_ROI']
     SAVE_ASSET = params['SAVE_ASSET']
