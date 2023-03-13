@@ -28,6 +28,8 @@ exports.s1_preproc = function(params) {
   if (params.APPLY_TERRAIN_FLATTENING===undefined) params.APPLY_TERRAIN_FLATTENING = true;
   if (params.APPLY_SPECKLE_FILTERING===undefined) params.APPLY_SPECKLE_FILTERING = true; 
   if (params.SPECKLE_FILTER_FRAMEWORK===undefined) params.SPECKLE_FILTER_FRAMEWORK = 'MULTI';
+  if (params.SPECKLE_FILTER_NR_OF_IMAGES===undefined) params.SPECKLE_FILTER_NR_OF_IMAGES = 5;
+  if (params.CLIP_TO_ROI===undefined) params.CLIP_TO_ROI = false;
   
   function notContains(list, value) {return list.indexOf(value) == -1;}
   
@@ -67,6 +69,9 @@ exports.s1_preproc = function(params) {
 
   if (params.SPECKLE_FILTER_KERNEL_SIZE <= 0) {
   throw new Error("The SPECKLE_FILTER_KERNEL_SIZE should be a positive integer")}
+
+  if (params.SPECKLE_FILTER_NR_OF_IMAGES <= 0) {
+     throw new Error("The SPECKLE_FILTER_NR_OF_IMAGES should be a positive integer")}
   
   /************************  
    * 1. Data Selection
