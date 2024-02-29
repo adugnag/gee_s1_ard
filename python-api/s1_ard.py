@@ -75,10 +75,11 @@ ee.Initialize()
 #/***************************/ 
 #Parameters
 parameter = {  'START_DATE': '2018-01-01',
-            'STOP_DATE': '2018-01-10',        
+            'STOP_DATE': '2018-02-01',        
             'POLARIZATION': 'VVVH',
             'ORBIT' : 'DESCENDING',
-            #'ORBIT_NUM': None,
+            'PLATFORM_NUMBER' : 'A',
+            'ORBIT_NUM': None,
             'ROI': ee.Geometry.Rectangle([-47.1634, -3.00071, -45.92746, -5.43836]),
             'APPLY_BORDER_NOISE_CORRECTION': False,
             'APPLY_SPECKLE_FILTERING': True,
@@ -93,7 +94,7 @@ parameter = {  'START_DATE': '2018-01-01',
             'FORMAT': 'DB',
             'CLIP_TO_ROI': False,
             'SAVE_ASSET': True,
-            'ASSET_ID': "users/mraj"
+            'ASSET_ID': "users/amullissa"
             }
 #processed s1 collection
 s1_processed = wp.s1_preproc(parameter)
