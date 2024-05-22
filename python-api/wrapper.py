@@ -47,9 +47,7 @@ def s1_preproc(params):
     APPLY_TERRAIN_FLATTENING = params['APPLY_TERRAIN_FLATTENING']
     APPLY_SPECKLE_FILTERING = params['APPLY_SPECKLE_FILTERING']
     POLARIZATION = params['POLARIZATION']
-    PLATFORM_NUMBER = params['PLATFORM_NUMBER']
     ORBIT = params['ORBIT']
-    ORBIT_NUM = params['ORBIT_NUM']
     SPECKLE_FILTER_FRAMEWORK = params['SPECKLE_FILTER_FRAMEWORK']
     SPECKLE_FILTER = params['SPECKLE_FILTER']
     SPECKLE_FILTER_KERNEL_SIZE = params['SPECKLE_FILTER_KERNEL_SIZE']
@@ -138,14 +136,6 @@ def s1_preproc(params):
         .filter(ee.Filter.listContains('transmitterReceiverPolarisation', 'VH'))\
         .filterDate(START_DATE, STOP_DATE) \
         .filterBounds(ROI)
-
-    if (PLATFORM_NUMBER=='A' or PLATFORM_NUMBER=='B' ):
-        s1 = s1.filter(ee.Filter.eq('platform_number', PLATFORM_NUMBER))
-   
-
-    if (ORBIT_NUM != None):
-        s1 = s1.filter(ee.Filter.eq('relativeOrbitNumber_start',ORBIT_NUM))
-        #.filter(ee.Filter.eq('relativeOrbitNumber_start',None))
 
 
     # select orbit
