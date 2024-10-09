@@ -79,9 +79,9 @@ exports.s1_preproc = function(params) {
       .filterBounds(params.GEOMETRY);
   
   if (params.POLARIZATION == 'VV') {
-    var s1 = s1.filter(ee.Filter.listContains('transmitterReceiverPolarisation', 'VV'))
+    s1 = s1.filter(ee.Filter.listContains('transmitterReceiverPolarisation', 'VV'))
   } else {
-    var s1 = s1.filter(ee.Filter.listContains('transmitterReceiverPolarisation', 'VH'))
+    s1 = s1.filter(ee.Filter.listContains('transmitterReceiverPolarisation', 'VH'))
   }
   
   //select orbit
