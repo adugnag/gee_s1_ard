@@ -71,14 +71,18 @@ exports.s1_preproc = function(params) {
   /************************  
    * 1. Data Selection
   ************************/ 
-  
-  // Select S1 GRD ImageCollection
-var s1 = ee.ImageCollection('COPERNICUS/S1_GRD_FLOAT')
+// Select S1 GRD ImageCollection
+  var s1 = ee.ImageCollection('COPERNICUS/S1_GRD_FLOAT')
       .filter(ee.Filter.eq('instrumentMode', 'IW'))
       .filter(ee.Filter.eq('resolution_meters', 10))
-      .filter(ee.Filter.listContains('transmitterReceiverPolarisation', 'VH'))
       .filterDate(params.START_DATE, params.STOP_DATE)
       .filterBounds(params.GEOMETRY);
+  
+  if (params.POLARIZATION == 'VV') {
+    var s1 = s1.filter(ee.Filter.listContains('transmitterReceiverPolarisation', 'VV'))
+  } else {
+    var s1 = s1.filter(ee.Filter.listContains('transmitterReceiverPolarisation', 'VH'))
+  }
   
   //select orbit
   if (params.ORBIT !== 'BOTH'){s1 = s1.filter(ee.Filter.eq('orbitProperties_pass', params.ORBIT))}
