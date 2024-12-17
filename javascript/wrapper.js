@@ -25,7 +25,7 @@ exports.s1_preproc = function(params) {
   if (params.DEM === undefined) params.DEM = ee.Image('USGS/SRTMGL1_003');
   if (params.POLARIZATION === undefined) params.POLARIZATION = 'VVVH';
   if (params.APPLY_ADDITIONAL_BORDER_NOISE_CORRECTION === undefined) params.APPLY_ADDITIONAL_BORDER_NOISE_CORRECTION = true;
-  if (params.APPLY_TERRAIN_FLATTENING===undefined) params.APPLY_TERRAIN_FLATTTENING = true;
+  if (params.APPLY_TERRAIN_FLATTENING===undefined) params.APPLY_TERRAIN_FLATTENING = true;
   if (params.APPLY_SPECKLE_FILTERING===undefined) params.APPLY_SPECKLE_FILTERING = true; 
   if (params.SPECKLE_FILTER_FRAMEWORK===undefined) params.SPECKLE_FILTER_FRAMEWORK = 'MULTI';
   
