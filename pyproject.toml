@@ -1,0 +1,16 @@
+[build-system]
+requires = ["setuptools>=61"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "gee_s1_ard"
+version = "1.2.0"
+description = "Sentinel-1 SAR backscatter ARD preparation in Google Earth Engine"
+license = {file = "LICENSE"}
+readme = "README.md"
+requires-python = ">=3.8"
+dependencies = ["earthengine-api"]
+
+[tool.setuptools]
+packages = ["gee_s1_ard"]
+package-dir = {"gee_s1_ard" = "python-api"}
