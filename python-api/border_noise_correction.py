@@ -8,7 +8,7 @@ Description: This script applied additional border noise correction
 """
 
 import ee
-import helper
+from . import helper
 
 # ---------------------------------------------------------------------------//
 # Additional Border Noise Removal

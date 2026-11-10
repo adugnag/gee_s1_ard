@@ -65,7 +65,7 @@ References
 
     """
 
-import wrapper as wp
+from gee_s1_ard import wrapper as wp
 import ee
 
 ee.Initialize()
